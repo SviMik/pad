@@ -126,7 +126,7 @@ PluginRegistry.prototype.loadInstalledHooks = function () {
    ' plugin_hook.original_name as original ' +
    'from ' +
    ' plugin ' +
-   ' left outer join plugin_hook on ' +
+   ' inner join plugin_hook on ' +
    '  plugin.id = plugin_hook.plugin_id ' +
    ' left outer join hook on ' +
    '  plugin_hook.hook_id = hook.id ' +
