@@ -166,7 +166,7 @@ var padmodals = (function() {
       padutils.cancelActions('hide-feedbackbox');
       padutils.cancelActions('hide-sharebox');
       $("#sharebox-response").hide();
-      $(".modaldialog").animate({'opacity': 0}, duration, function () { $("#modaloverlay").hide(); });
+      $(".modaldialog").animate({'opacity': 0}, duration, function () { $(".modaldialog").hide(); });
       $("#modaloverlay").animate({'opacity': 0}, duration, function () { $("#modaloverlay").hide(); });
     },
     dismissModal: function() {
