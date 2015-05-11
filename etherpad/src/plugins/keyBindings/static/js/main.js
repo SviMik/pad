@@ -111,7 +111,7 @@ function keyBindingsPluginInit() {
                             while (children[i].textContent[t + 1] == ' ' || children[i].textContent[t + 1] == ' ' /*nbsp*/)
                                 t++;
 
-                            setSelection(children[i], {start: children[i].textContent.search( /[a-zA-Z]/ ), end: t+1});
+                            setSelection(children[i], {start: 0, end: t+1});
 
                             pad.editbarClick('clearauthorship');
                         }

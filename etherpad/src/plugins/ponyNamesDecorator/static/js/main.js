@@ -66,9 +66,9 @@ function aceCreateDomLine(args) {
 			color = colors[name];
 			return '';
 		});
-		var extraOpenTags = '<span style="font-size:11px; background-color: #fdb; border-radius: 5px;">';
+		var extraOpenTags = '<span style="font-size:11px; background-color: #fdb; font-weight: bold;">';
 		if(color)
-			extraOpenTags = '<span style="font-size:11px; background-color: ' + color + '; border-radius: 5px;">';
+			extraOpenTags = '<span style="font-size:11px; background-color: ' + color + '; font-weight: bold;">';
 		return [{
 			cls: cls,
 			extraOpenTags: extraOpenTags,
