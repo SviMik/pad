@@ -3,10 +3,11 @@ import("plugins.readonlyPad.hooks");
 import("sqlbase.sqlobj");
 
 function readonlyPadInit() {
-    this.hooks = ['docBarDropdownsPad', 'collabServerUserChanges'];
     this.description = 'With this plugin you can set a public pad to readonly for guests';
+    this.hooks = ['docBarDropdownsPad', 'collabServerUserChanges', 'collabServerClientMessage'];
     this.docBarDropdownsPad = hooks.docBarDropdownsPad;
     this.collabServerUserChanges = hooks.collabServerUserChanges;
+	this.collabServerClientMessage = hooks.collabServerClientMessage;
     this.install = install;
     this.uninstall = uninstall;
 }

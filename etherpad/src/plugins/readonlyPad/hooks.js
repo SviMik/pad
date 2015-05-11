@@ -20,24 +20,21 @@ function docBarDropdownsPad(arg) {
 }
 
 function collabServerUserChanges(args) {
-    var readonlyPad_return = true;
+    return [isWritingAllowed(args)];
+}
+
+function collabServerClientMessage(args) {
+    return [isWritingAllowed(args)];
+}
+
+function isWritingAllowed(args) {
+    var result = true;
     model.accessPadGlobal(args.pad, function(pad) {
-	var opts = pad.getPadOptionsObj();
-	
-	if(opts.view)
-	{
-	    var isReadOnly = opts.view.readonlyPadPolicy;
-	    if(isReadOnly!=null)
-	    {
-		if(isReadOnly==true)
-		{
-		    if(!pro_accounts.isAccountSignedIn())
-		    {
-			readonlyPad_return = false;
-		    }
-		}
-	    }
-	}
+        var opts = pad.getPadOptionsObj();
+        if(opts.view && opts.view.readonlyPadPolicy==true && !pro_accounts.isAccountSignedIn())
+        {
+            result = false;
+        }
     });
-    return [readonlyPad_return];
+    return result;
 }
