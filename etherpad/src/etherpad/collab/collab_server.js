@@ -733,6 +733,10 @@ function _handleCometMessage(connection, msg) {
     });
   }
   else if (msg.type == "CLIENT_MESSAGE") {
+    var plugin_checks = plugins.callHook("collabServerClientMessage", {pad: _roomToPadId(connection.roomName), msg: msg});
+    var plugin_access = plugin_checks.every(function(value) {return !!value;});
+    if (!plugin_access)
+        return false;
     _accessConnectionPad(connection, "CLIENT_MESSAGE", function(pad) {
       var payload = msg.payload;
       if (payload.authId &&
