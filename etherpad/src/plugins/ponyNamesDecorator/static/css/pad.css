@@ -1,4 +1,5 @@
-.pony_timing{font-size:11px}
+.pony_timing{font-size:11px;vertical-align:1px}
+.pony_timing b{font-weight:normal}
 .pony_name{font-weight:bold;background-color:#DDD !important}
 .pony_applejack{background-color:#FFC46B !important}
 .pony_fluttershy{background-color:#FDF6A6 !important}
