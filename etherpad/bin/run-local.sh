@@ -70,7 +70,7 @@ if [[ $(uname -s) == CYGWIN* ]]; then
     _tmp=`readlink -f "appjet-eth-dev.jar"`
     CP=`cygpath -wp "${_tmp}"`
     _tmp=`readlink -f "data"`
-    CP="${CP}\;"`cygpath -wp "${tmp}"`
+    CP="${CP}\;"`cygpath -wp "${_tmp}"`
     for f in `readlink -f "lib/*.jar"`; do
             CP="$CP\;"`cygpath -wp "${f}"`
     done
