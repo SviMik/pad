@@ -65,7 +65,7 @@ PluginRegistry.prototype.loadAvailablePlugin = function (pluginName) {
 
   var pluginFile = new Packages.java.io.File(pluginsDir, pluginName + '/main.js');
   if (pluginFile.exists()) {
-    var pluginModulePath = pluginFile.getPath().replace(new RegExp("src/\(.*\)\.js"), "$1").replace("/", ".", "g");
+    var pluginModulePath = pluginFile.getPath().replace("\\", "/", "g").replace(new RegExp("src/\(.*\)\.js"), "$1").replace("/", ".", "g");
     var importStmt = "import('" + pluginModulePath + "')";
     try {
       var res = execution.fancyAssEval(importStmt, "main;");
