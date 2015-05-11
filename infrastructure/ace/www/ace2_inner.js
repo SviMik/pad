@@ -3031,7 +3031,7 @@ function OUTER(gscope) {
     // 20 is capslock in IE.
     var isModKey = ((!charCode) &&
 		    ((type == "keyup") || (type == "keydown")) &&
-		    (keyCode == 16 || keyCode == 17 || keyCode == 18 || keyCode == 20 || keyCode == 224
+		    (/*keyCode == 16 || keyCode == 17 ||*/ keyCode == 18 || keyCode == 20 || keyCode == 224
 		     || keyCode == 91));
     if (isModKey) return;
 
