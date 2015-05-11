@@ -70,36 +70,37 @@ function keyBindingsPluginInit() {
         }
 
         window.padeditor.ace.setOnKeyDown (function(evt) {
-            if(evt.ctrlKey && String.fromCharCode (evt.which).toLowerCase() == "j") {
-                var iframe = $("iframe").contents().find('body#outerdocbody iframe')[0];
-                var children = $("iframe").contents().find('body#outerdocbody iframe').contents().find('body')[0].children;
+            // if(evt.ctrlKey && String.fromCharCode (evt.which).toLowerCase() == "j") {
+            //     var iframe = $("iframe").contents().find('body#outerdocbody iframe')[0];
+            //     var children = $("iframe").contents().find('body#outerdocbody iframe').contents().find('body')[0].children;
 
-                var sel = rangy.getSelection(iframe);
-                for (var i = 0; i < children.length; i++)
-                    if (sel.containsNode(children[i], true /*partial*/)) {
-                        var t = children[i].textContent.indexOf(':');
+            //     var sel = rangy.getSelection(iframe);
+            //     for (var i = 0; i < children.length; i++)
+            //         if (sel.containsNode(children[i], true /*partial*/)) {
+            //             var t = children[i].textContent.indexOf(':');
 
-                        if (t > -1 && t <= 30 && (children[i].textContent.substr(0, t).match(/ /g) || []).length <= 2) {
-                            var spans = children[i].childNodes;
-                            var needBold = false;
-                            var boldSymbols = children[i].textContent.search( /[a-zA-Z]/ );
-                            var spanN = 0;
-                            while (boldSymbols <= t) {
-                                if (spans[spanN].className.split(" ").indexOf("b") < 0) {
-                                    needBold = true;
-                                    break;
-                                }
-                                boldSymbols += spans[spanN].textContent.length;
-                                spanN++;
-                            }
+            //             if (t > -1 && t <= 30 && (children[i].textContent.substr(0, t).match(/ /g) || []).length <= 2) {
+            //                 var spans = children[i].childNodes;
+            //                 var needBold = false;
+            //                 var boldSymbols = children[i].textContent.search( /[a-zA-Z]/ );
+            //                 var spanN = 0;
+            //                 while (boldSymbols <= t) {
+            //                     if (spans[spanN].className.split(" ").indexOf("b") < 0) {
+            //                         needBold = true;
+            //                         break;
+            //                     }
+            //                     boldSymbols += spans[spanN].textContent.length;
+            //                     spanN++;
+            //                 }
 
-                            setSelection(children[i], {start: children[i].textContent.search( /[a-zA-Z]/ ), end: t+1});
-                            if (needBold)
-                                pad.editbarClick('bold');
-                        }
-                    }
-            }
-            else if(evt.ctrlKey && evt.shiftKey && String.fromCharCode (evt.which).toLowerCase() == "m") {
+            //                 setSelection(children[i], {start: children[i].textContent.search( /[a-zA-Z]/ ), end: t+1});
+            //                 if (needBold)
+            //                     pad.editbarClick('bold');
+            //             }
+            //         }
+            // }
+            // else 
+            if(evt.ctrlKey && evt.shiftKey && String.fromCharCode (evt.which).toLowerCase() == "m") {
                 var iframe = $("iframe").contents().find('body#outerdocbody iframe')[0];
                 var children = $("iframe").contents().find('body#outerdocbody iframe').contents().find('body')[0].children;
 
