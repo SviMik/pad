@@ -71,6 +71,7 @@ function Ace2Editor() {
   editor.getFormattedCode = function() { return info.ace_getFormattedCode(); };
   editor.setOnKeyPress = pendingInit(function (handler) { info.ace_setOnKeyPress(handler); });
   editor.setOnKeyDown = pendingInit(function (handler) { info.ace_setOnKeyDown(handler); });
+  editor.setOnKeyUp = pendingInit(function (handler) { info.ace_setOnKeyUp(handler); });
   editor.setNotifyDirty = pendingInit(function (handler) { info.ace_setNotifyDirty(handler); });
 
   editor.setProperty = pendingInit(function(key, value) { info.ace_setProperty(key, value); });

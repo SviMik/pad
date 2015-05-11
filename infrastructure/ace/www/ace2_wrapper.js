@@ -102,6 +102,11 @@ AppjetCodeEditor.prototype.setOnKeyDown = function(f) {
   this.aceImpl.setOnKeyDown(this.onKeyDown);
 };
 
+AppjetCodeEditor.prototype.setOnKeyUp = function(f) {
+  this.onKeyUp = f;
+  this.aceImpl.setOnKeyUp(this.onKeyUp);
+};
+
 AppjetCodeEditor.prototype.setNotifyDirty = function(f) {
   this.notifyDirty = f;
   this.aceImpl.setNotifyDirty(this.notifyDirty);
@@ -190,6 +195,7 @@ ACEPlain.prototype.exportCode = function() {
 
 ACEPlain.prototype.setOnKeyPress = function(f) { this.onKeyPress = f; };
 ACEPlain.prototype.setOnKeyDown = function(f) { this.onKeyDown = f; };
+ACEPlain.prototype.setOnKeyUp = function(f) { this.onKeyUp = f; };
 ACEPlain.prototype.setNotifyDirty = function(f) { this.notifyDirty = f; };
 
 ACEPlain.prototype.getFormattedCode = function() {

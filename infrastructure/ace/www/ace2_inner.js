@@ -46,6 +46,7 @@ function OUTER(gscope) {
   initLineNumbers();
 
   var outsideKeyDown = function(evt) {};
+  var outsideKeyUp = function(evt) {};
   var outsideKeyPress = function(evt) { return true; };
   var outsideNotifyDirty = function() {};
 
@@ -728,6 +729,10 @@ function OUTER(gscope) {
     outsideKeyDown = handler;
   }
 
+  function setOnKeyUp(handler) {
+    outsideKeyUp = handler;
+  }
+
   function setNotifyDirty(handler) {
     outsideNotifyDirty = handler;
   }
@@ -795,6 +800,7 @@ function OUTER(gscope) {
   editorInfo.ace_editorChangedSize = editorChangedSize;
   editorInfo.ace_setOnKeyPress = setOnKeyPress;
   editorInfo.ace_setOnKeyDown = setOnKeyDown;
+  editorInfo.ace_setOnKeyUp = setOnKeyUp;
   editorInfo.ace_setNotifyDirty = setNotifyDirty;
   editorInfo.ace_dispose = dispose;
   editorInfo.ace_getFormattedCode = getFormattedCode;
@@ -3045,9 +3051,10 @@ function OUTER(gscope) {
 	  evt.preventDefault();
 	  stopped = true;
 	}
-      }
-      else if (type == "keydown") {
+      } else if (type == "keydown") {
 	outsideKeyDown(evt);
+      } else if (type == "keyup") {
+	outsideKeyUp(evt);
       }
 
       if (! stopped) {
@@ -3859,6 +3866,7 @@ function OUTER(gscope) {
   function bindTheEventHandlers() {
     bindEventHandler(window, "unload", teardown);
     bindEventHandler(document, "keydown", handleKeyEvent);
+    bindEventHandler(document, "keyup", handleKeyEvent);
     bindEventHandler(document, "keypress", handleKeyEvent);
     bindEventHandler(document, "keyup", handleKeyEvent);
     bindEventHandler(document, "click", handleClick);
