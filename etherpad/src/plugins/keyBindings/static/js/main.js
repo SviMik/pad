@@ -82,7 +82,7 @@ function keyBindingsPluginInit() {
                         if (t > -1 && t <= 30 && (children[i].textContent.substr(0, t).match(/ /g) || []).length <= 2) {
                             var spans = children[i].childNodes;
                             var needBold = false;
-                            var boldSymbols = 0;
+                            var boldSymbols = children[i].textContent.search( /[a-zA-Z]/ );
                             var spanN = 0;
                             while (boldSymbols <= t) {
                                 if (spans[spanN].className.split(" ").indexOf("b") < 0) {
@@ -93,7 +93,7 @@ function keyBindingsPluginInit() {
                                 spanN++;
                             }
 
-                            setSelection(children[i], {start: 0, end: t+1});
+                            setSelection(children[i], {start: children[i].textContent.search( /[a-zA-Z]/ ), end: t+1});
                             if (needBold)
                                 pad.editbarClick('bold');
                         }
@@ -111,7 +111,7 @@ function keyBindingsPluginInit() {
                             while (children[i].textContent[t + 1] == ' ' || children[i].textContent[t + 1] == ' ' /*nbsp*/)
                                 t++;
 
-                            setSelection(children[i], {start: 0, end: t+1});
+                            setSelection(children[i], {start: children[i].textContent.search( /[a-zA-Z]/ ), end: t+1});
 
                             pad.editbarClick('clearauthorship');
                         }
