@@ -27,8 +27,10 @@ function ponynames(linestylefilter){
 			return function(txt, cls) {
 				var txtlen = txt.length;
 				if(curIndex >= splitPoints[0] && curIndex < splitPoints[1]){
-					var classname=lineText.substring(splitPoints[0], splitPoints[1]).replace(/\s|:/g, '').toLowerCase();
-					cls += (cls==""?"":" ")+"pony_name pony_" + classname;
+					if(lineText.substring(splitPoints[1], splitPoints[1]+2)!="//"){ // prevents links from highlighting
+						var classname=lineText.substring(splitPoints[0], splitPoints[1]).replace(/\s|:/g, '').toLowerCase();
+						cls += (cls==""?"":" ")+"pony_name pony_" + classname;
+					}
 				}else if(curIndex < splitPoints[0]){
 					cls += (cls==""?"":" ")+"pony_timing";
 				}
