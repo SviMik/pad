@@ -1,16 +1,15 @@
-
+﻿
 import("faststatic");
 import("dispatch.{Dispatcher,PrefixMatcher,forward}");
-
-import("etherpad.log");
-import("sqlbase.sqlbase");
-import("sqlbase.sqlcommon");
-import("sqlbase.sqlobj");
 import("etherpad.pad.padutils");
 import("etherpad.pad.model");
 
 function onRequest() {
 	response.setContentType("text/plain; charset=utf-8");
+	response.setHeader("Cache-Control: no-store, no-cache, must-revalidate");
+	response.setHeader("Cache-Control: post-check=0, pre-check=0", false);
+	response.setHeader("Pragma: no-cache");
+
 	try {
 
 	function trim(str) {
@@ -30,33 +29,58 @@ function onRequest() {
 		return min+":"+sec;
 	}
 
-	var parts = request.path.split('/');
-	if(typeof(parts[2])=="undefined"){
+	function getPadText(padId){
+		var usePadId = padutils.getGlobalPadId(padId);
+		var padText = model.accessPadGlobal(usePadId, function(pad) {
+			if(!pad.exists()){
+				return false;
+			}
+			var cloneRevNum = pad.getHeadRevisionNumber();
+			return pad.getRevisionText(cloneRevNum);
+		}, 'r');
+		return padText;
+	}
+
+	/* Parse request URL */
+	var argv = request.path.split('/');
+	if(typeof(argv[2])=="undefined"){
 		response.write("Missing pad id");
 		return true;
 	}
-	var usePadId = padutils.getGlobalPadId(parts[2]);
-	var padText = model.accessPadGlobal(usePadId, function(pad) {
-		if(!pad.exists()){
-			return false;
-		}
-		var cloneRevNum = pad.getHeadRevisionNumber();
-		return pad.getRevisionText(cloneRevNum);
-	}, 'r');
 
+	/* Get lang settings */
+	var lang="en";
+	if(typeof(argv[3])!="undefined" && argv[3]=="ru"){
+		lang="ru";
+	}
+
+	/* Get main pad text */
+	var padText=getPadText(argv[2]);
 	if(padText==false){
 		response.write("No such pad");
 		return true;
 	}
 
-	var lang="en";
-	if(typeof(parts[3])!="undefined" && parts[3]=="ru"){
-		lang="ru";
+	/* Make this file downloadable */
+	response.setHeader("Content-Disposition", "attachment; filename=\""+argv[2]+"_"+lang+".ass");
+
+	/* Get header pad text */
+	var headerText=getPadText("assheader");
+	if(headerText!=false && headerText!=""){
+		var tmp=headerText.replace(/[ ]{2,}/g, ' ').split("\n");
+		var prev_str="";
+		for(k in tmp){
+			var str=trim(tmp[k].replace(/;.*/, ""));
+			if(str!=prev_str){
+				response.write(str+"\r\n");
+				prev_str=str;
+			}
+		}
 	}
 
-	//response.setHeader("Content-Disposition", "attachment; filename=\""+shownPadID+"-"+revisionId+"."+format+"\"");
-	response.write("[Events]\n");
-	response.write("Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\n");
+	/* Events block header */
+	response.write("[Events]\r\n");
+	response.write("Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\r\n");
 
 	var tmp=padText.replace(/\[[^\]]+\]/g, "").replace(/[ ]{2,}/g, ' ').split("\n");
 	for(k in tmp){
@@ -71,7 +95,7 @@ function onRequest() {
 			var text_ru=trim(m[6].replace(/\[[^\[\]]+\]/g, ''));
 			var text=(lang=="en") ? text_en : text_ru;
 			if(text!=""){
-				response.write("Dialogue: 0,0:"+htime(t, 2)+",0:"+htime(t+l, 2)+","+name+",,0,0,0,,"+text+"\n");
+				response.write("Dialogue: 0,0:"+htime(t, 2)+",0:"+htime(t+l, 2)+","+name+",,0,0,0,,"+text+"\r\n");
 			}
 		}
 	}
