@@ -4,7 +4,7 @@ import("plugins.moreColors.static.js.main");
 function moreColorsInit() {
     this.hooks = [];
     this.description = 'Adds more colors to pad.';
-    this.client = new main.moreColorsPluginInit();
+    this.client = new main.moreColorsInit();
     this.install = install;
     this.uninstall = uninstall;
 }
