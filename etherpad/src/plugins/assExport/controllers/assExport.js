@@ -6,9 +6,8 @@ import("etherpad.pad.model");
 
 function onRequest() {
 	response.setContentType("text/plain; charset=utf-8");
-	response.setHeader("Cache-Control: no-store, no-cache, must-revalidate");
-	response.setHeader("Cache-Control: post-check=0, pre-check=0", false);
-	response.setHeader("Pragma: no-cache");
+	response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, post-check=0, pre-check=0");
+	response.setHeader("Pragma", "no-cache");
 
 	try {
 
@@ -62,7 +61,7 @@ function onRequest() {
 	}
 
 	/* Make this file downloadable */
-	response.setHeader("Content-Disposition", "attachment; filename=\""+argv[2]+"_"+lang+".ass");
+	response.setHeader("Content-Disposition", "attachment; filename=\""+argv[2]+"_"+lang+".ass\"");
 
 	/* Get header pad text */
 	var headerText=getPadText("assheader");
