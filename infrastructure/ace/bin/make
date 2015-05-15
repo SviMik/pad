@@ -1,6 +1,14 @@
 #!/bin/bash
+
+set -x
+
 mkdir -p ../../etherpad/src/etherpad/collab/ace
 mkdir -p ../../etherpad/src/static/js
+
+if [ "$3" == "debug" ]; then
+    mkdir -p ../../etherpad/src/static/js/ace
+    mkdir -p ../../etherpad/src/static/css/ace
+fi
 
 JARFILES="."
 if [[ $(uname -s) == CYGWIN* ]]; then
@@ -118,6 +126,7 @@ def doMake {
 
   lazy val isEtherPad = (args.length >= 2 && args(1) == "etherpad");
   lazy val isNoHelma = (args.length >= 2 && args(1) == "nohelma");
+  lazy val isDebugMode = (args.length >= 3 && args(2) == "debug");
     
   def getFile(path:String): String = {
     val builder = new StringBuilder(1000);
@@ -201,46 +210,48 @@ def doMake {
   val destDir = "build";
   var code = getFile(srcDir+"/ace2_outer.js");
 
-  val useCompression = true; //if (isEtherPad) false else true;
+  val useCompression = !isDebugMode; //if (isEtherPad) false else true;
 
-  code = stringReplace(code, "\\$\\$INCLUDE_([A-Z_]+)\\([\"']([^\"']+)[\"']\\)", false, (m:MatchResult) => {
-    val includeType = m.group(1);
-    val paths = m.group(2);
-    val pathsArray = paths.replaceAll("""/\*.*?\*/""", "").split(" +").filter(_.length > 0);
-    def getSubcode = pathsArray.map(p => getFile(srcDir+"/"+p)).mkString("\n");
-    val doPack = (stringToExpression _);
-    includeType match {
-      case "JS" => {
-	var subcode = getSubcode;
-	subcode = subcode.replaceAll("var DEBUG=true;//\\$\\$[^\n\r]*", "var DEBUG=false;");
-	if (useCompression) subcode = compressJS(subcode, true);
-	"('\\x3cscript type=\"text/javascript\">//<!--\\n'+" + doPack(subcode) +
-	  "+'//-->\\n</script>')";
-      }
-      case "CSS" => {
-	var subcode = getSubcode;
-	if (useCompression) subcode = compressCSS(subcode, false);
-	"('<style type=\"text/css\">'+" + doPack(subcode) + "+'</style>')";
-      }
-      case "JS_Q" => {
-	var subcode = getSubcode
-	subcode = subcode.replaceAll("var DEBUG=true;//\\$\\$[^\n\r]*", "var DEBUG=false;");
-	if (useCompression) subcode = compressJS(subcode, true);
-	"('(\\'\\\\x3cscript type=\"text/javascript\">//<!--\\\\n\\'+'+" +
-	  doPack(stringToExpression(subcode)) +
-	    "+'+\\'//-->\\\\n\\\\x3c/script>\\')')";
-      }
-      case "CSS_Q" => {
-	var subcode = getSubcode;
-	if (useCompression) subcode = compressCSS(subcode, false);
-	"('(\\'<style type=\"text/css\">\\'+'+" + doPack(stringToExpression(subcode)) +
-	  "+'+\\'\\\\x3c/style>\\')')";
-      }
-      case ("JS_DEV" | "CSS_DEV") => "''";
-      case ("JS_Q_DEV" | "CSS_Q_DEV") => "'\\'\\''";
-      //case _ => "$$INCLUDE_"+includeType+"(\"../www/"+path+"\")";
-    }
-  });
+  if (!isDebugMode) {
+      code = stringReplace(code, "\\$\\$INCLUDE_([A-Z_]+)\\([\"']([^\"']+)[\"']\\)", false, (m:MatchResult) => {
+        val includeType = m.group(1);
+        val paths = m.group(2);
+        val pathsArray = paths.replaceAll("""/\*.*?\*/""", "").split(" +").filter(_.length > 0);
+        def getSubcode = pathsArray.map(p => getFile(srcDir+"/"+p)).mkString("\n");
+        val doPack = (stringToExpression _);
+        includeType match {
+          case "JS" => {
+        var subcode = getSubcode;
+        subcode = subcode.replaceAll("var DEBUG=true;//\\$\\$[^\n\r]*", "var DEBUG=false;");
+        if (useCompression) subcode = compressJS(subcode, true);
+        "('\\x3cscript type=\"text/javascript\">//<!--\\n'+" + doPack(subcode) +
+          "+'//-->\\n</script>')";
+          }
+          case "CSS" => {
+        var subcode = getSubcode;
+        if (useCompression) subcode = compressCSS(subcode, false);
+        "('<style type=\"text/css\">'+" + doPack(subcode) + "+'</style>')";
+          }
+          case "JS_Q" => {
+        var subcode = getSubcode
+        subcode = subcode.replaceAll("var DEBUG=true;//\\$\\$[^\n\r]*", "var DEBUG=false;");
+        if (useCompression) subcode = compressJS(subcode, true);
+        "('(\\'\\\\x3cscript type=\"text/javascript\">//<!--\\\\n\\'+'+" +
+          doPack(stringToExpression(subcode)) +
+            "+'+\\'//-->\\\\n\\\\x3c/script>\\')')";
+          }
+          case "CSS_Q" => {
+        var subcode = getSubcode;
+        if (useCompression) subcode = compressCSS(subcode, false);
+        "('(\\'<style type=\"text/css\">\\'+'+" + doPack(stringToExpression(subcode)) +
+          "+'+\\'\\\\x3c/style>\\')')";
+          }
+          case ("JS_DEV" | "CSS_DEV") => "''";
+          case ("JS_Q_DEV" | "CSS_Q_DEV") => "'\\'\\''";
+          //case _ => "$$INCLUDE_"+includeType+"(\"../www/"+path+"\")";
+        }
+      });
+  }
 
   if (useCompression) code = compressJS(code, true);
 
@@ -299,6 +310,24 @@ def doMake {
     copyFileToEtherpad("domline.js", "domline.js");
     copyFileToClientSide("domline.js", "domline_client.js");
     copyFileToClientSide("cssmanager.js", "cssmanager_client.js");
+    
+    if (isDebugMode) {
+        copyFileToClientSide("ace2_common.js", "ace/ace2_common.js");
+        copyFileToClientSide("skiplist.js", "ace/skiplist.js");
+        copyFileToClientSide("virtual_lines.js", "ace/virtual_lines.js");
+        copyFileToClientSide("easysync2.js", "ace/easysync2.js");
+        copyFileToClientSide("cssmanager.js", "ace/cssmanager.js");
+        copyFileToClientSide("colorutils.js", "ace/colorutils.js");
+        copyFileToClientSide("undomodule.js", "ace/undomodule.js");
+        copyFileToClientSide("contentcollector.js", "ace/contentcollector.js");
+        copyFileToClientSide("changesettracker.js", "ace/changesettracker.js");
+        copyFileToClientSide("linestylefilter.js", "ace/linestylefilter.js");
+        copyFileToClientSide("domline.js", "ace/domline.js");
+        copyFileToClientSide("ace2_inner.js", "ace/ace2_inner.js");
+        putFile(getFile(srcDir+"/editor.css"), "../../etherpad/src/static/css/ace/editor.css");
+        putFile(getFile(srcDir+"/syntax.css"), "../../etherpad/src/static/css/ace/syntax.css");
+        putFile(getFile(srcDir+"/inner.css"), "../../etherpad/src/static/css/ace/inner.css");
+    }
   }
   /*else if (! isNoHelma) {
     copyFile("build/ace2.js", "../helma_apps/appjet/protectedStatic/js/ace.js");	     
