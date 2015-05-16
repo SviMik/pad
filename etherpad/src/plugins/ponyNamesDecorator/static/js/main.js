@@ -7,7 +7,7 @@ function ponyNamesDecoratorInit() {
 
 	function ponynames(linestylefilter){
 		return function (lineText, textAndClassFunc) {
-			var regExp = /^([^a-z]{0,18})(([a-z][a-z0-9]* *){1,3}:)/gi;
+			var regExp = /^([^a-z#]{0,18})(([a-z][a-z0-9]* *){1,3}:)/gi;
 			regExp.lastIndex = 0;
 			var splitPoints = [];
 			var execResult;
