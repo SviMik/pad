@@ -97,11 +97,12 @@ var padchat = (function(){
       var authorNum = authorToNum(userId);
       chatlineClass += " chatauthor"+authorNum;
     }
-    var textHtml = padutils.escapeHtmlWithClickableLinks(lineText, '_blank');
+    var textHtml = {html: padutils.escapeHtmlWithClickableLinks(lineText, '_blank')};
+    plugins.callHook("chatLineText", textHtml);
     var lineNode = $('<div class="'+chatlineClass+'">'+
                      '<span class="chatlinetime">'+hourmin+' </span>'+
                      '<span class="chatlinename">'+nameHtml+': </span>'+
-                     '<span class="chatlinetext">'+textHtml+'</span></div>');
+                     '<span class="chatlinetext">'+textHtml.html+'</span></div>');
     var linesArray = chatLinesByDay[dayIndex].lines;
     var lineObj = {userId:userId, time:time, name:name, lineText:lineText};
     if (addBefore) {
