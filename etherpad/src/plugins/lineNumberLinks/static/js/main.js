@@ -72,7 +72,7 @@ function lineNumberLinksInit() {
     
     function chatLineText(args) {
         args.html = args.html.replace(/\[(\d+)\]/g, '[<a href="javascript:void(0)" onclick="top.lineNumberLinks.onLinkClick(event, $1);return false;">$1</a>]');
-        args.html = args.html.replace(/(#|№|^)(\d+)([,.:;!?…\/\\ +—–-]|$)/g, '$1<a href="javascript:void(0)" onclick="top.lineNumberLinks.onLinkClick(event, $2);return false;">$2</a>$3');
+        args.html = args.html.replace(/(#|\u2116|^)(\d+)([,.:;!?\/\\ +\u2014\u2013\u2026-]|$)/g, '$1<a href="javascript:void(0)" onclick="top.lineNumberLinks.onLinkClick(event, $2);return false;">$2</a>$3');
     }
     
     function getTagFilter(linestylefilter, tagFunc) {
