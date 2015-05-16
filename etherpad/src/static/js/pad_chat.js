@@ -138,7 +138,7 @@ var padchat = (function(){
     var lines = block.lines;
     for(var i=lines.length-1; i>=0; i--) {
       var line = lines[i];
-      addChatLine(line.userId, line.time, line.name, line.lineText, true);
+      addChatLine(line.userId, line.time, line.name, line.lineText.toString(), true);
     }
 
 	
