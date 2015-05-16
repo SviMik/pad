@@ -1,4 +1,4 @@
-﻿
+
 import("faststatic");
 import("dispatch.{Dispatcher,PrefixMatcher,forward}");
 import("etherpad.pad.padutils");
@@ -93,6 +93,9 @@ function onRequest() {
 			var text_en=trim(m[5].replace(/\[[^\[\]]+\]/g, '').replace(/([a-zA-Z][^ ]+) [^a-zA-Z]+$/g, '$1'));
 			var text_ru=trim(m[6].replace(/\[[^\[\]]+\]/g, ''));
 			var text=(lang=="en") ? text_en : text_ru;
+			if(name=="Auto" || name=="Multilang"){
+				text=trim(text_en+" "+text_ru);
+			}
 			if(text!=""){
 				response.write("Dialogue: 0,0:"+htime(t, 2)+",0:"+htime(t+l, 2)+","+name+",,0,0,0,,"+text+"\r\n");
 			}
