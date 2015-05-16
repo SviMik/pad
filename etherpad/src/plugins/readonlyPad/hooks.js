@@ -24,15 +24,19 @@ function collabServerUserChanges(args) {
 }
 
 function collabServerClientMessage(args) {
-    return [isWritingAllowed(args)];
+    if (isWritingAllowed(args) || args.msg && args.msg.payload && args.msg.payload.type=='chat') {
+        return [true];
+    } else {
+        log.info({message: 'Rejected client message', args: args});
+        return [false];
+    }
 }
 
 function isWritingAllowed(args) {
     var result = true;
     model.accessPadGlobal(args.pad, function(pad) {
         var opts = pad.getPadOptionsObj();
-        if(opts.view && opts.view.readonlyPadPolicy==true && !pro_accounts.isAccountSignedIn())
-        {
+        if(opts.view && opts.view.readonlyPadPolicy==true && !pro_accounts.isAccountSignedIn()) {
             result = false;
         }
     });
