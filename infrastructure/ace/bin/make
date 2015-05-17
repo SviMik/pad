@@ -312,18 +312,18 @@ def doMake {
     copyFileToClientSide("cssmanager.js", "cssmanager_client.js");
     
     if (isDebugMode) {
-        copyFileToClientSide("ace2_common.js", "ace/ace2_common.js");
-        copyFileToClientSide("skiplist.js", "ace/skiplist.js");
-        copyFileToClientSide("virtual_lines.js", "ace/virtual_lines.js");
-        copyFileToClientSide("easysync2.js", "ace/easysync2.js");
-        copyFileToClientSide("cssmanager.js", "ace/cssmanager.js");
-        copyFileToClientSide("colorutils.js", "ace/colorutils.js");
-        copyFileToClientSide("undomodule.js", "ace/undomodule.js");
-        copyFileToClientSide("contentcollector.js", "ace/contentcollector.js");
-        copyFileToClientSide("changesettracker.js", "ace/changesettracker.js");
-        copyFileToClientSide("linestylefilter.js", "ace/linestylefilter.js");
-        copyFileToClientSide("domline.js", "ace/domline.js");
-        copyFileToClientSide("ace2_inner.js", "ace/ace2_inner.js");
+        putFile(getFile(srcDir+"/ace2_common.js"), "../../etherpad/src/static/js/ace/ace2_common.js");
+        putFile(getFile(srcDir+"/skiplist.js"), "../../etherpad/src/static/js/ace/skiplist.js");
+        putFile(getFile(srcDir+"/virtual_lines.js"), "../../etherpad/src/static/js/ace/virtual_lines.js");
+        putFile(getFile(srcDir+"/easysync2.js"), "../../etherpad/src/static/js/ace/easysync2.js");
+        putFile(getFile(srcDir+"/cssmanager.js"), "../../etherpad/src/static/js/ace/cssmanager.js");
+        putFile(getFile(srcDir+"/colorutils.js"), "../../etherpad/src/static/js/ace/colorutils.js");
+        putFile(getFile(srcDir+"/undomodule.js"), "../../etherpad/src/static/js/ace/undomodule.js");
+        putFile(getFile(srcDir+"/contentcollector.js"), "../../etherpad/src/static/js/ace/contentcollector.js");
+        putFile(getFile(srcDir+"/changesettracker.js"), "../../etherpad/src/static/js/ace/changesettracker.js");
+        putFile(getFile(srcDir+"/linestylefilter.js"), "../../etherpad/src/static/js/ace/linestylefilter.js");
+        putFile(getFile(srcDir+"/domline.js"), "../../etherpad/src/static/js/ace/domline.js");
+        putFile(getFile(srcDir+"/ace2_inner.js"), "../../etherpad/src/static/js/ace/ace2_inner.js");
         putFile(getFile(srcDir+"/editor.css"), "../../etherpad/src/static/css/ace/editor.css");
         putFile(getFile(srcDir+"/syntax.css"), "../../etherpad/src/static/css/ace/syntax.css");
         putFile(getFile(srcDir+"/inner.css"), "../../etherpad/src/static/css/ace/inner.css");
