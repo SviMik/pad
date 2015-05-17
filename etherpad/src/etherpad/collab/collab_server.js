@@ -224,6 +224,12 @@ function applyMissedChanges(pad, missedChanges) {
     return;
   }
 
+  var plugin_checks = plugins.callHook("collabServerApplyMissedChanges", {pad: pad.getId()});
+  var plugin_access = plugin_checks.every(function(value) {return !!value;});
+  if (!plugin_access) {
+    return;
+  }
+
   if (committedChangeset) {
     var wireApool1 = (new AttribPool()).fromJsonable(missedChanges.committedChangesetAPool);
     _checkChangesetAndPool(committedChangeset, wireApool1);

@@ -24,10 +24,21 @@ function collabServerUserChanges(args) {
 }
 
 function collabServerClientMessage(args) {
+    //log.info({message: 'collabServerClientMessage', args: args});
     if (isWritingAllowed(args) || args.msg && args.msg.payload && args.msg.payload.type=='chat') {
         return [true];
     } else {
         log.info({message: 'Rejected client message', args: args});
+        return [false];
+    }
+}
+
+function collabServerApplyMissedChanges(args) {
+    //log.info({message: 'collabServerApplyMissedChanges', args: args});
+    if (isWritingAllowed(args)) {
+        return [true];
+    } else {
+        log.info({message: 'Rejected missed changes', args: args});
         return [false];
     }
 }
