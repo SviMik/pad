@@ -46,7 +46,7 @@ var contentTypes = {
   'jpg': 'image/jpeg',
   'jpeg': 'image/jpeg',
   'css': 'text/css',
-  'js': 'application/x-javascript',
+  'js': 'application/x-javascript; charset=utf-8',
   'txt': 'text/plain; charset=utf-8',
   'html': 'text/html; charset=utf-8',
   'ico': 'image/x-icon',
@@ -125,7 +125,8 @@ function wrapFile(localFile) {
   return {
     getPath: function() { return localFile; },
     getMTime: function() { return getMTime(localFile); },
-    getContents: function() { return readFileAndProcess(manglePluginPaths(localFile), 'string'); }
+    getContents: function() { return readFileAndProcess(manglePluginPaths(localFile), 'string'); },
+    getBytes: function() { return readFileAndProcess(manglePluginPaths(localFile), 'bytes'); }
   };
 }
 
@@ -322,7 +323,13 @@ function _compressFilesAndMakeKey(type, fileList) {
 
   var fullstr = "";
   fileList.forEach(function(f) {
-    fullstr += _compress(f.getContents());
+    var str;
+    if (type == 'js' && f.getBytes) {
+      str = String(new java.lang.String(f.getBytes(), 'UTF-8'));
+    } else {
+      str = f.getContents();
+    }
+    fullstr += _compress(str);
   });
 
   fullstr = _compress(fullstr);
