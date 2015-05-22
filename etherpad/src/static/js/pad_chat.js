@@ -224,7 +224,7 @@ var padchat = (function(){
       var box = $("#chatlines").get(0);
       var wasAtBottom = (box.scrollTop -
                          (box.scrollHeight - $(box).height()) >= -5);
-      addChatLine(msg.userId, +new Date, msg.senderName, msg.lineText, false);
+      addChatLine(msg.userId, +new Date, msg.senderName, msg.lineText.toString(), false);
       if (wasAtBottom) {
         window.setTimeout(function() {
           self.scrollToBottom();
