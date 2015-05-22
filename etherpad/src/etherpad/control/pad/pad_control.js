@@ -341,7 +341,7 @@ function render_pad(localPadId) {
       userAgent: request.headers["User-Agent"],
       collab_client_vars: collab_server.getCollabClientVars(pad),
       debugEnabled: request.params.djs,
-      clientIp: request.clientAddr,
+      clientIp: (request.clientAddr=="127.0.0.1" && request.headers["X-Real-IP"]) ? request.headers["X-Real-IP"] : request.clientAddr,
       colorPalette: COLOR_PALETTE,
       nameGuess: (getSession().nameGuess || null),
       initialRevisionList: revisions.getRevisionList(pad),
