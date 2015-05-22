@@ -337,21 +337,32 @@ function handleComet(cometOp, cometId, msg) {
       var clientReadyData = requireTruthy(msg.data, 12);
 
       var callbacks = getCallbacksForRoom(roomName, roomType);
-      var userInfo =
-        requireTruthy(callbacks.handleConnect(clientReadyData), 13);
-
-      var newConnection = addRoomConnection(roomName, roomType,
-                                            connectionId, socketId,
-                                            {userInfo: userInfo});
-
-      callbacks.clientReady(newConnection, clientReadyData);
+      
+      if (callbacks.checkGuestSecurity()) {
+        var userInfo =
+          requireTruthy(callbacks.handleConnect(clientReadyData), 13);
+        var newConnection = addRoomConnection(roomName, roomType,
+                                              connectionId, socketId,
+                                              {userInfo: userInfo});
+        callbacks.clientReady(newConnection, clientReadyData);
+        //log.info({message: "Accepted comet message", msg: msg});
+      }
+      else {
+        log.info({message: "Rejected comet message", msg: msg});
+      }
     }
     else {
       if (messageConnectionId) {
         var connection = getConnection(messageConnectionId);
         if (connection) {
           var callbacks = getCallbacksForRoom(connection.roomName);
-          callbacks.handleMessage(connection, msg);
+          if (callbacks.checkGuestSecurity()) {
+            callbacks.handleMessage(connection, msg);
+            //log.info({message: "Accepted comet message", msg: msg});
+          }
+          else {
+            log.info({message: "Rejected comet message", msg: msg});
+          }
         }
       }
     }

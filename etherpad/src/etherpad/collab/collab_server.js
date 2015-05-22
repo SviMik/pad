@@ -25,6 +25,8 @@ import("etherpad.pad.padusers");
 import("etherpad.pad.padevents");
 import("etherpad.pad.pad_security");
 import("etherpad.pro.pro_padmeta");
+import("etherpad.pro.pro_accounts");
+import("etherpad.pro.pro_config");
 import("fastJSON");
 import("fileutils.readFile");
 import("jsutils.{eachProperty,keys}");
@@ -639,6 +641,29 @@ function getRoomCallbacks(roomName) {
     };
   callbacks.handleMessage = function(connection, msg) {
     _handleCometMessage(connection, msg);
+  };
+  callbacks.checkGuestSecurity = function() {
+    var globalPadId = _roomToPadId(roomName);
+    if (padutils.isProPadId(globalPadId)) {
+      var isAccountHolder = pro_accounts.isAccountSignedIn();
+      if (isAccountHolder) {
+        return pro_accounts.getSessionProAccount().domainId == padutils.getDomainId(globalPadId);
+      }
+      else {
+        var guestsAllowed = model.accessPadGlobal(globalPadId, function(pad) {
+          if (!pad.exists()) {
+            return pro_config.getConfig().openByGuestsAllowed;
+          }
+          else {
+            return pad.getGuestPolicy() == 'allow';
+          }
+        });
+        return guestsAllowed;
+      }
+    }
+    else {
+      return true;
+    }
   };
   return callbacks;
 }
