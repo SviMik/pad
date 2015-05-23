@@ -108,6 +108,7 @@ function backendLogFileName(logName, day) {
 function _getRequestLogEntry() {
   if (request.isDefined) {
     var logEntry = {
+      requestHeaders: request.headers,
       clientAddr: request.clientAddr,
       method: request.method.toLowerCase(),
       scheme: request.scheme,
