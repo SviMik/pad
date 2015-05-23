@@ -6,7 +6,7 @@ function showImagesInit() {
 	function imagefilter(linestylefilter){
 		return function (lineText, textAndClassFunc) {
 			imagewas=-1;
-			var regExp = /http.+((\.png)|(\.jpg))/gi;
+			var regExp = /https?:\/\/.+((\.png)|(\.jpg))/gi;
 			regExp.lastIndex = 0;
 			var splitPoints = [];
 			var execResult;

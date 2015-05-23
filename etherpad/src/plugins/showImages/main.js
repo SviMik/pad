@@ -8,11 +8,9 @@ import("etherpad.log");
 import("plugins.showImages.static.js.main");
 
 function showImagesInit() {
- this.hooks = ['aceGetFilterStack', 'aceCreateDomLine'];
+ this.hooks = [];
  this.client = new main.showImagesInit(); 
  this.description = 'Render images inline';
- this.aceGetFilterStack = main.aceGetFilterStack;
- this.aceCreateDomLine = main.aceCreateDomLine;
  this.install = install;
  this.uninstall = uninstall;
 }
