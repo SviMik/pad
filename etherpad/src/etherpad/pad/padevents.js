@@ -144,8 +144,8 @@ function onClientMessage(pad, senderUserInfo, msg) {
       if (opts.guestPolicy == 'deny') {
         // boot guests!
         collab_server.bootUsersFromPad(pad, "unauth", function(userInfo) {
-          return padusers.isGuest(userInfo.userId); }).forEach(function(userInfo) {
-            pad_security.revokePadUserAccess(padId, userInfo.userId); });
+          return padusers.isGuest(userInfo.userId); });
+        pad_security.revokeAllPadAccess(padId);
       }
     }
   }

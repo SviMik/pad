@@ -338,7 +338,7 @@ function handleComet(cometOp, cometId, msg) {
 
       var callbacks = getCallbacksForRoom(roomName, roomType);
       
-      if (callbacks.checkGuestSecurity()) {
+      if (callbacks.doesUserHaveAccess()) {
         var userInfo =
           requireTruthy(callbacks.handleConnect(clientReadyData), 13);
         var newConnection = addRoomConnection(roomName, roomType,
@@ -356,7 +356,7 @@ function handleComet(cometOp, cometId, msg) {
         var connection = getConnection(messageConnectionId);
         if (connection) {
           var callbacks = getCallbacksForRoom(connection.roomName);
-          if (callbacks.checkGuestSecurity()) {
+          if (callbacks.doesUserHaveAccess()) {
             callbacks.handleMessage(connection, msg);
             //log.info({message: "Accepted comet message", msg: msg});
           }

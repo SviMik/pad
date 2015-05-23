@@ -145,6 +145,65 @@ function checkAccessControl(globalPadId, rwMode) {
   }
 }
 
+function doesUserHaveAccess(globalPadId) {
+  if (_insideCheckAccessControl) {
+    return true;
+  }
+  if (!padutils.isProPadId(globalPadId)) {
+    return true;
+  }
+  if (sessions.isAnEtherpadAdmin()) {
+    return true;
+  }
+
+  if (_doesSessionHaveAccessTo(globalPadId)) {
+    return true;
+  }
+
+  var padDomainId = padutils.getDomainId(globalPadId);
+  if (padDomainId && pro_utils.isProDomainRequest()) {
+    if (domains.getRequestDomainId() != padDomainId) {
+      return false;
+    }
+  }
+
+  var isAccountHolder = pro_accounts.isAccountSignedIn();
+  if (isAccountHolder) {
+    if (pro_accounts.getSessionProAccount().domainId != padDomainId) {
+      return false;
+    }
+  }
+  else {
+    var guestsAllowed = model.accessPadGlobal(globalPadId, function(pad) {
+      if (!pad.exists()) {
+        return pro_config.getConfig().openByGuestsAllowed;
+      }
+      else {
+        return pad.getGuestPolicy() == 'allow';
+      }
+    });
+    if (!guestsAllowed) {
+      return false;
+    }
+  }
+
+  var padPasswordAuth = getSession().padPasswordAuth ? getSession().padPasswordAuth[globalPadId] : false;
+  if (!padPasswordAuth && !stringutils.startsWith(request.path, "/ep/admin/recover-padtext")) {
+    var password = pro_padmeta.accessProPad(globalPadId, function(propad) {
+      if (propad.exists()) {
+        return propad.getPassword();
+      } else {
+        return null;
+      }
+    });
+    if (password) {
+      return false;
+    }  
+  }
+  
+  return true;
+}
+
 function _checkDomainSecurity(globalPadId) {
   var padDomainId = padutils.getDomainId(globalPadId);
   if (!padDomainId) {
