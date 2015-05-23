@@ -126,7 +126,7 @@ PluginRegistry.prototype.loadInstalledHooks = function () {
    ' plugin_hook.original_name as original ' +
    'from ' +
    ' plugin ' +
-   ' inner join plugin_hook on ' +
+   ' left outer join plugin_hook on ' +
    '  plugin.id = plugin_hook.plugin_id ' +
    ' left outer join hook on ' +
    '  plugin_hook.hook_id = hook.id ' +
@@ -140,19 +140,22 @@ PluginRegistry.prototype.loadInstalledHooks = function () {
 
     if (this.plugins[row.plugin] == undefined)
       this.plugins[row.plugin] = [];
-    this.plugins[row.plugin].push(row);
+    
+    if (row.type) {
+      this.plugins[row.plugin].push(row);
 
-    var hookSet;
+      var hookSet;
 
-    if (row.type == 'server')
-      hookSet = this.hooks;
-    else if (row.type == 'client')
-      hookSet = this.clientHooks;
+      if (row.type == 'server')
+        hookSet = this.hooks;
+      else if (row.type == 'client')
+        hookSet = this.clientHooks;
 
-    if (hookSet[row.hook] == undefined)
-      hookSet[row.hook] = [];
-    if (row.hook != 'null')
-      hookSet[row.hook].push(row);
+      if (hookSet[row.hook] == undefined)
+        hookSet[row.hook] = [];
+      if (row.hook != 'null')
+        hookSet[row.hook].push(row);
+    }
   }
 }
 
