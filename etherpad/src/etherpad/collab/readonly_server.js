@@ -22,6 +22,7 @@ import("etherpad.pad.activepads");
 import("etherpad.pad.model");
 import("etherpad.pad.padutils");
 import("etherpad.pad.padevents");
+import("etherpad.pad.pad_security");
 import("etherpad.pro.pro_padmeta");
 import("fastJSON");
 import("fileutils.readFile");
@@ -63,6 +64,9 @@ function getRoomCallbacks(roomName, emptyCallbacks) {
       collabroom_server.updateRoomConnectionData(newConnection.connectionId,
                                                  newConnection.data);
     };
+  callbacks.doesUserHaveAccess = function() {
+    return pad_security.doesUserHaveAccess(viewId);
+  };
 
   return callbacks;
 }
