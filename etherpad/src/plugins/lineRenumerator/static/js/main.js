@@ -1,6 +1,7 @@
 function lineRenumeratorPluginInit() {
     this.hooks = [];
     this.version = '0.1';
+    this.getLinesOffset = getLinesOffset;
 
     if(isBrowser()) {
         window.addEventListener('load', executeScript, false);
