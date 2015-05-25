@@ -252,6 +252,7 @@ object main {
     requestLog.setLogServer(true);
     requestLog.setLogLatency(true);
     requestLog.setLogTimeZone("PST");
+    requestLog.setPreferProxiedForAddress(true);
     requestLogHandler.setRequestLog(requestLog);
     
     // set handlers with server
