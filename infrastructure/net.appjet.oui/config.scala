@@ -111,6 +111,9 @@ object config {
               { val argName = "directory" }
   def sessionStoreDir = stringOrElse("sessionStoreDir", "[appjetHome]/sessions");
 
+  @ConfigParam("Whether to treat the value of the X-Real-IP HTTP header (if present) as the client IP address")
+  def clientAddressFromXRealIpHeader = boolOrElse("clientAddressFromXRealIpHeader", false);
+
   // performance tuning
   @ConfigParam("Create this many runners before opening up the server.")
               { val argName = "count" }
