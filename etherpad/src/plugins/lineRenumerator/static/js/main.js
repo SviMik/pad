@@ -42,7 +42,7 @@ function lineRenumeratorPluginInit() {
 
             var numbers = $("iframe").contents().find('div#sidediv table tbody tr td').contents();
             for (var i = 0; i < start; i++) {
-                numbers[i].textContent = '';
+                numbers[i].textContent = 'A' + (i+1);
             }
             for (var i = start; i < numbers.length; i++) {
                 numbers[i].textContent = i - start + 1;
