@@ -58,6 +58,7 @@ var contentTypes = {
 var gzipableTypes = {
   'text/css': true,
   'application/x-javascript': true,
+  'application/x-javascript; charset=utf-8': true,
   'text/html; charset=utf-8': true
 };
 
