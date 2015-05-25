@@ -13,7 +13,7 @@ function lineRenumeratorPluginInit() {
     }
 
     function executeScript() {
-        if(!window.$ || !$('#padpage #padmain').length)
+        if(!window.$ || !$("iframe").contents().find('div#sidediv table tbody tr td').contents().length)
             return;
 
         var currentLineNumber = -1;
