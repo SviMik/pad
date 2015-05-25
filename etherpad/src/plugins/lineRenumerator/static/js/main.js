@@ -25,13 +25,16 @@ function lineRenumeratorPluginInit() {
     }
 
     function executeScript() {
-        if(!window.$ || !$("iframe").contents().find('div#sidediv table tbody tr td').contents().length)
+        if(!window.$ || !(window.padeditor && window.padeditor.ace))
             return;
 
         var currentLineNumber = -1;
         var start = 0;
 
         setInterval(function() {
+            var text =  window.padeditor.ace.exportText();
+            var lines = text.split('\n');
+
             if (lines.length == currentLineNumber && getLinesOffset() == start)
                 return;
             currentLineNumber = lines.length;
