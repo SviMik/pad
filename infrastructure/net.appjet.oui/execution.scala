@@ -74,6 +74,7 @@ class RequestWrapper(val req: HttpServletRequest) {
       else {
         req.getRemoteAddr();
       }
+    }
     else {
       req.getRemoteAddr();
     }
