@@ -141,7 +141,7 @@ PluginRegistry.prototype.loadInstalledHooks = function () {
     if (this.plugins[row.plugin] == undefined)
       this.plugins[row.plugin] = [];
     
-    if (row.type) {
+    if (row.type && this.pluginModules[row.plugin] !== undefined) {
       this.plugins[row.plugin].push(row);
 
       var hookSet;
