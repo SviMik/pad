@@ -1,54 +1,67 @@
 function lineNumberLinksInit() {
-    this.hooks = [/*'aceInitInnerdocbodyHead', */'aceGetFilterStack', 'aceCreateDomLine', 'chatLineText'];
+    this.hooks = [/*'aceInitInnerdocbodyHead', */'aceGetFilterStack', 'aceCreateDomLine', 'chatLineText', 'incorporateUserChanges', 'performDocumentApplyChangeset'];
     //this.aceInitInnerdocbodyHead = aceInitInnerdocbodyHead;
     this.aceGetFilterStack = aceGetFilterStack;
     this.aceCreateDomLine = aceCreateDomLine;
     this.chatLineText = chatLineText;
+    this.incorporateUserChanges = incorporateUserChanges;
+    this.performDocumentApplyChangeset = performDocumentApplyChangeset;
     this.onLinkClick = onLinkClick;
 
     var arrowDiv = null;
+    var highlightDiv = null;
     
     function goToLine(lineNumberStr) {
-        var lineNumber;
+        var lineIndex;
         if (window.lineRenumeratorPlugin) {
             if (lineNumberStr[0] == 'A') {
-                lineNumber = parseInt(lineNumberStr.substring(1));
+                lineIndex = parseInt(lineNumberStr.substring(1)) - 1;
             }
             else {
-                lineNumber = parseInt(lineNumberStr) + lineRenumeratorPlugin.getLinesOffset();
+                lineIndex = parseInt(lineNumberStr) + lineRenumeratorPlugin.getLinesOffset() - 1;
             }
         }
         else {
-            lineNumber = parseInt(lineNumberStr);
+            lineIndex = parseInt(lineNumberStr) - 1;
         }
         var outerFrame = $('#padeditor #editorcontainerbox #editorcontainer iframe');
         var outerBody = outerFrame.contents().find('body#outerdocbody');
         var innerFrame = outerBody.find('iframe');
         var innerBody = innerFrame.contents().find('body#innerdocbody');
-        var lineDiv = innerBody.find('div').eq(lineNumber - 1);
+        var lineDiv = innerBody.find('div').eq(lineIndex);
         if (lineDiv.length > 0) {
             var scrollingElements = outerFrame.contents().find('html,body');
             scrollingElements.scrollTop(innerFrame.offset().top + lineDiv.offset().top + lineDiv.height()/2 - outerFrame.height()/2);
             var scrollTop = Math.max(scrollingElements.eq(0).scrollTop(), scrollingElements.eq(1).scrollTop());
-            if (!arrowDiv)
-            {
-                $(document.body).append('<link rel="stylesheet" type="text/css" href="/static/css/plugins/lineNumberLinks/pad.css">');
-                var overlayDiv = $('<div id="linenumberlinksarrowoverlay"/>').appendTo($(document.body));
-                arrowDiv = $('<div id="linenumberlinksarrow"/>').css('display', 'none').appendTo(overlayDiv);
+            if (!highlightDiv) {
+                highlightDiv = $('<div id="linenumberlinkshighlight"/>').css({
+                    display: 'none',
+                    position: 'absolute',
+                    left: '0px',
+                    width: '100%',
+                    backgroundColor: 'rgb(108, 166, 255)',
+                    zIndex: '1',
+                    pointerEvents: 'none'
+                }).appendTo(outerBody);
             }
-            var arrowTop = outerFrame.offset().top + innerFrame.offset().top + lineDiv.offset().top + lineDiv.height()/2 - scrollTop;
-            var arrowRight = $('#padpage').offset().left;
-            arrowDiv.stop();
-            arrowDiv.css({
-                opacity: '1', 
-                left: (arrowRight-110) + 'px', 
-                top: (arrowTop-50) + 'px',
+            highlightDiv.stop();
+            highlightDiv.css({
+                opacity: '0.3',
+                top: (innerFrame.offset().top + lineDiv.offset().top) + 'px',
+                height: lineDiv.height() + 'px',
                 display: 'block'
             });
-            arrowDiv.animate({opacity: '0'}, {duration: 'slow', complete: function() {arrowDiv.css('display', 'none')}});
+            highlightDiv.updatePadLinePosition = function() {
+                var lineDiv = innerBody.find('div').eq(lineIndex);
+                highlightDiv.css({
+                    top: (innerFrame.offset().top + lineDiv.offset().top) + 'px',
+                    height: lineDiv.height() + 'px',
+                });
+            }
+            highlightDiv.animate({opacity: '0'}, {duration: 750, complete: function() {highlightDiv.css('display', 'none')}});
         }
     }
-    
+
     function onLinkClick(event, lineNumber) {
         if (event && event.preventDefault) {
             event.preventDefault();
@@ -63,6 +76,18 @@ function lineNumberLinksInit() {
         args.iframeHTML.push('\'<link rel="stylesheet" type="text/css" href="/static/css/plugins/lineNumberLinks/pad.css"/>\'');
     }*/
 
+    function incorporateUserChanges(args) {
+        if (highlightDiv && highlightDiv.updatePadLinePosition) {
+            highlightDiv.updatePadLinePosition();
+        }
+    }
+
+    function performDocumentApplyChangeset(args) {
+        if (highlightDiv && highlightDiv.updatePadLinePosition) {
+            highlightDiv.updatePadLinePosition();
+        }
+    }
+    
     function aceGetFilterStack(args) {
         return [getLineNumberLinkFilter(args.linestylefilter)];
     }
