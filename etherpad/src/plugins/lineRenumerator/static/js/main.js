@@ -38,7 +38,7 @@ function lineRenumeratorPluginInit() {
 
         setInterval(function() {
             var text =  window.padeditor.ace.exportText();
-            var numbers = $("iframe").contents().find('div#sidediv table tbody tr td').contents();
+            var numbers = $('#editorcontainer iframe').contents().find('div#sidediv table tbody tr td').contents();
             
             if (!isAceInitialized || typeof(text) == "undefined" || numbers.length == 0)
                 return;
