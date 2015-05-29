@@ -196,6 +196,42 @@ linestylefilter.getRegexpFilter = function (regExp, tag) {
   };
 };
 
+linestylefilter.getTagFilter = function(tagFunc) {
+  return function (lineText, textAndClassFunc) {
+    var tagPlacement = tagFunc(lineText);
+    if (!tagPlacement || !tagPlacement.splitPoints && !tagPlacement.tagNames || 
+        tagPlacement.splitPoints.length == 0 && tagPlacement.tagNames.length == 0 ||
+        tagPlacement.splitPoints.length != tagPlacement.tagNames.length*2) {
+      return textAndClassFunc;
+    }
+
+    function getTagByIndex(idx) {
+      for(var i = 0; i < tagPlacement.tagNames.length; i++) {
+        if (idx >= tagPlacement.splitPoints[i*2] && idx < tagPlacement.splitPoints[i*2 + 1]) {
+          return tagPlacement.tagNames[i];
+        }
+      }
+      return null;
+    }
+
+    var handleTagsAfterSplit = (function() {
+      var currentIndex = 0;
+      return function(txt, cls) {
+        var textLength = txt.length;
+        var newCls = cls;
+        var tag = getTagByIndex(currentIndex);
+        if (tag) {
+          newCls += " "+tag;
+        }
+        textAndClassFunc(txt, newCls);
+        currentIndex += textLength;
+      };
+    })();
+
+    return linestylefilter.textAndClassFuncSplitter(handleTagsAfterSplit, tagPlacement.splitPoints);
+  };
+}
+
 
 linestylefilter.REGEX_WORDCHAR = /[\u0030-\u0039\u0041-\u005A\u0061-\u007A\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u00FF\u0100-\u1FFF\u3040-\u9FFF\uF900-\uFDFF\uFE70-\uFEFE\uFF10-\uFF19\uFF21-\uFF3A\uFF41-\uFF5A\uFF66-\uFFDC]/;
 linestylefilter.REGEX_URLCHAR = new RegExp('('+/[-:@a-zA-Z0-9_.,~%+\/\\?=&#;()$]/.source+'|'+linestylefilter.REGEX_WORDCHAR.source+')');

@@ -144,46 +144,8 @@ function lineNumberLinksInit() {
         });
     }
     
-    function getTagFilter(linestylefilter, tagFunc) {
-        return function (lineText, textAndClassFunc) {
-            var tagPlacement = tagFunc(lineText);
-            if (!tagPlacement || !tagPlacement.splitPoints && !tagPlacement.tagNames || 
-                    tagPlacement.splitPoints.length == 0 && tagPlacement.tagNames.length == 0) {
-                return textAndClassFunc;
-            }
-            if (tagPlacement.splitPoints.length != tagPlacement.tagNames.length*2) {
-                throw new Error("getTagFilter");
-            }
-
-            function getTagByIndex(idx) {
-                for(var i = 0; i < tagPlacement.tagNames.length; i++) {
-                    if (idx >= tagPlacement.splitPoints[i*2] && idx < tagPlacement.splitPoints[i*2 + 1]) {
-                        return tagPlacement.tagNames[i];
-                    }
-                }
-                return null;
-            }
-
-            var handleTagsAfterSplit = (function() {
-                var currentIndex = 0;
-                return function(txt, cls) {
-                    var textLength = txt.length;
-                    var newCls = cls;
-                    var tag = getTagByIndex(currentIndex);
-                    if (tag) {
-                        newCls += " "+tag;
-                    }
-                    textAndClassFunc(txt, newCls);
-                    currentIndex += textLength;
-                };
-            })();
-
-            return linestylefilter.textAndClassFuncSplitter(handleTagsAfterSplit, tagPlacement.splitPoints);
-        };
-    }
-    
     function getLineNumberLinkFilter(linestylefilter) {
-        return getTagFilter(linestylefilter, function(lineText) {
+        return linestylefilter.getTagFilter(function(lineText) {
             var tagPlacement = {splitPoints: [], tagNames: []};
             var lineNumberPattern;
             if (window.lineRenumeratorPlugin) {
