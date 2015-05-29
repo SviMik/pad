@@ -30,11 +30,17 @@ function lineRenumeratorPluginInit() {
 
         var currentLineNumber = -1;
         var start = 0;
+        
+        var isAceInitialized = false;
+        padeditor.ace.callWithAce(function() {
+            isAceInitialized = true;
+        });
 
         setInterval(function() {
             var text =  window.padeditor.ace.exportText();
-            if (text == "(awaiting init)\n" || typeof(text) == "undefined" ||
-                $("iframe").contents().find('div#sidediv table tbody tr td').contents().length == 0)
+            var numbers = $("iframe").contents().find('div#sidediv table tbody tr td').contents();
+            
+            if (!isAceInitialized || typeof(text) == "undefined" || numbers.length == 0)
                 return;
 
             var lines = text.split('\n');
@@ -44,7 +50,6 @@ function lineRenumeratorPluginInit() {
             currentLineNumber = lines.length;
             start = getLinesOffset();
 
-            var numbers = $("iframe").contents().find('div#sidediv table tbody tr td').contents();
             for (var i = 0; i < start; i++) {
                 numbers[i].textContent = 'A' + (i+1);
             }
