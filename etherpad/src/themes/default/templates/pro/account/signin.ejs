@@ -12,8 +12,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License. */ %><% helpers.includeJQuery() %>
 <% helpers.includeJs("pro/signin-client.js") %>
+<% helpers.includeJs("pro/pro-padlist-client.js") %>
 <% helpers.includeCss("pro/account.css") %>
+<% helpers.includeCss("pro/padlist.css") %>
 <% helpers.setHtmlTitle(appjet.config.customBrandingName +": Sign In") %>
+<% helpers.addToHead('\n<style type="text/css">#padtable .toprow {pointer-events: none;}</style>\n') %>
 
 
 <div class="fpcontent">
@@ -81,6 +84,13 @@ limitations under the License. */ %><% helpers.includeJQuery() %>
       password</a>
   </div>
 
+  <div>
+    <h3 style="font-weight: bold; margin-top: 27px">
+      Public Pads
+    </h3>
+    <%= renderPads() %>
+  </div>
+  
   </div>
 </div>
 

@@ -65,7 +65,20 @@ class RequestWrapper(val req: HttpServletRequest) {
   lazy val query = req.getQueryString();
   lazy val method = req.getMethod();
   lazy val scheme = req.getScheme();
-  lazy val clientAddr = req.getRemoteAddr();
+  lazy val clientAddr = {
+    if (config.clientAddressFromXRealIpHeader) {
+      val realIpFromHeader = req.getHeader("X-Real-IP");
+      if (realIpFromHeader != null && !realIpFromHeader.isEmpty()) {
+        realIpFromHeader;
+      }
+      else {
+        req.getRemoteAddr();
+      }
+    }
+    else {
+      req.getRemoteAddr();
+    }
+  }
   
   def decodeWwwFormUrlencoded(content: => String): Map[String, Array[String]] = {
     val map = new HashMap[String, ArrayBuffer[String]];

@@ -30,6 +30,8 @@ import("etherpad.pro.domains");
 import("etherpad.pro.pro_utils");
 import("etherpad.pro.pro_account_auto_signin");
 import("etherpad.pro.pro_config");
+import("etherpad.pro.pro_pad_db");
+import("etherpad.pro.pro_padlist");
 import("etherpad.pad.pad_security");
 import("etherpad.pad.padutils");
 import("etherpad.pad.padusers");
@@ -190,6 +192,10 @@ function render_sign_in_get() {
   if (request.params.guest && request.params.padId) {
     showGuestBox = true;
   }
+  var pads = pro_pad_db.listAllDomainPads();
+  var renderPads = function() {
+    return pro_padlist.renderPadList(pads, ['title', 'lastEditedDate', 'connectedUsers'], 10);
+  }
   _renderTemplate('signin', {
     domain: pro_utils.getFullProDomain(),
     siteName: toHTML(pro_config.getConfig().siteName),
@@ -197,6 +203,7 @@ function render_sign_in_get() {
     password: getSession().tempFormData.password || "",
     rememberMe: getSession().tempFormData.rememberMe || false,
     showGuestBox: showGuestBox,
+    renderPads: renderPads,
     localPadId: request.params.padId
   });
 }
