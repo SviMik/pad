@@ -8,7 +8,7 @@ function ponyNamesDecoratorInit() {
 	function getPonyNamesFilter(linestylefilter){
         return linestylefilter.getTagFilter(function(lineText) {
             var tagPlacement = {splitPoints: [], tagNames: []};
-			var regExp = /^([^a-z#]{0,18})(([a-z][a-z0-9]* *){1,3}:)/gi;
+			var regExp = /^([^a-z#*\u25CF\u25E6\u2022]{0,18})(([a-z][a-z0-9]* *){1,3}:)/gi;
 			regExp.lastIndex = 0;
 			var execResult;
 			if(execResult = regExp.exec(lineText)){
