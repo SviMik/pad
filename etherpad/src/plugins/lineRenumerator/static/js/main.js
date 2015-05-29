@@ -33,6 +33,10 @@ function lineRenumeratorPluginInit() {
 
         setInterval(function() {
             var text =  window.padeditor.ace.exportText();
+            if (text == "(awaiting init)\n" || typeof(text) == "undefined" ||
+                $("iframe").contents().find('div#sidediv table tbody tr td').contents().length == 0)
+                return;
+
             var lines = text.split('\n');
 
             if (lines.length == currentLineNumber && getLinesOffset() == start)
