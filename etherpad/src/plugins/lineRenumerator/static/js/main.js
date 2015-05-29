@@ -25,7 +25,7 @@ function lineRenumeratorPluginInit() {
     }
 
     function executeScript() {
-        if (window.location.href.indexOf('/ep/') != -1)
+        if (!window.$ || !(window.padeditor && window.padeditor.ace))
             return;
 
         var currentLineNumber = -1;
