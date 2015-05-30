@@ -93,6 +93,17 @@ function _computeIsProDomainRequest() {
   return false;
 }
 
+function isProDomainRequestForPublicPage() {
+  return isProDomainRequest() && 
+     (request.path == "/ep/account/sign-in" ||
+      request.path == "/ep/account/sign-out" ||
+      request.path == "/ep/account/guest-sign-in" ||
+      request.path == "/ep/account/guest-knock" ||
+      request.path == "/ep/account/forgot-password" ||
+      request.path == "/ep/account/request-account" ||
+      request.path == "/ep/account/request-account-captcha");
+}
+
 function preDispatchAccountCheck() {
   // if account is not logged in, redirect to /ep/account/login
   //
@@ -109,7 +120,9 @@ function preDispatchAccountCheck() {
       response.redirect('/ep/account/create-admin-account');
     }
   } else {
-    pro_accounts.requireAccount();
+    if (!isProDomainRequestForPublicPage()) {
+      pro_accounts.requireAccount();
+    }
   }
 
   pro_quotas.perRequestBillingCheck();

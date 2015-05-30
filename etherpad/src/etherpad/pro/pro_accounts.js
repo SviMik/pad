@@ -289,22 +289,17 @@ function isAdminSignedIn() {
 }
 
 function requireAccount(message) {
-  if ((request.path == "/ep/account/sign-in") ||
-      (request.path == "/ep/account/sign-out") ||
-      (request.path == "/ep/account/guest-sign-in") ||
-      (request.path == "/ep/account/guest-knock") ||
-      (request.path == "/ep/account/forgot-password") ||
-      (request.path == "/ep/account/request-account") ||
-      (request.path == "/ep/account/request-account-captcha")) {
-    return;
-  }
-
   function checkSessionAccount() {
     if (!getSessionProAccount()) {
       if (message) {
         account_control.setSigninNotice(message);
       }
-      response.redirect('/ep/account/sign-in?cont='+encodeURIComponent(request.url));
+      if (pro_utils.isProDomainRequestForPublicPage()) {
+        //response.sendError(500, '500 Internal Server Error');
+        throw new Error('requireAccount is called on a public page');
+      } else {
+        response.redirect('/ep/account/sign-in?cont='+encodeURIComponent(request.url));
+      }
     }
   }
 
