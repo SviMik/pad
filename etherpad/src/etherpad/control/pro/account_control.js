@@ -192,9 +192,13 @@ function render_sign_in_get() {
   if (request.params.guest && request.params.padId) {
     showGuestBox = true;
   }
-  var pads = pro_pad_db.listAllDomainPads();
+  var publicPads = pro_pad_db.listAllDomainPads().filter(function(padRecord) {
+    return padutils.accessPadLocal(padRecord.localPadId, function(pad) {
+      return pad.exists() && pad.getGuestPolicy()=='allow';
+    });
+  });
   var renderPads = function() {
-    return pro_padlist.renderPadList(pads, ['title', 'lastEditedDate', 'connectedUsers'], 10);
+    return pro_padlist.renderPadList(publicPads, ['title', 'lastEditedDate', 'connectedUsers'], 10);
   }
   _renderTemplate('signin', {
     domain: pro_utils.getFullProDomain(),
