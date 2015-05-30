@@ -204,6 +204,18 @@ function doesUserHaveAccess(globalPadId) {
   return true;
 }
 
+function bypassAccessControl(callback) {
+  var result;
+  try {
+    _insideCheckAccessControl = true;
+    result = callback.apply(null, Array.prototype.slice.call(arguments, 1));
+  }
+  finally {
+    _insideCheckAccessControl = false;
+  }
+  return result;
+}
+
 function _checkDomainSecurity(globalPadId) {
   var padDomainId = padutils.getDomainId(globalPadId);
   if (!padDomainId) {

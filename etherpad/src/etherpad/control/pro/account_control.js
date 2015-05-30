@@ -193,8 +193,10 @@ function render_sign_in_get() {
     showGuestBox = true;
   }
   var publicPads = pro_pad_db.listAllDomainPads().filter(function(padRecord) {
-    return padutils.accessPadLocal(padRecord.localPadId, function(pad) {
-      return pad.exists() && pad.getGuestPolicy()=='allow';
+    return pad_security.bypassAccessControl(function() {
+      return padutils.accessPadLocal(padRecord.localPadId, function(pad) {
+        return pad.exists() && pad.getGuestPolicy()=='allow';
+      });
     });
   });
   var renderPads = function() {
