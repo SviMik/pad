@@ -84,12 +84,14 @@ limitations under the License. */ %><% helpers.includeJQuery() %>
       password</a>
   </div>
 
-  <div>
-    <h3 style="font-weight: bold; margin-top: 27px">
-      Public Pads
-    </h3>
-    <%= renderPads() %>
-  </div>
+  <% if (renderPads) { %>
+    <div>
+      <h3 style="font-weight: bold; margin-top: 27px">
+        Public Pads
+      </h3>
+      <%= renderPads() %>
+    </div>
+  <% } %>
   
   </div>
 </div>
