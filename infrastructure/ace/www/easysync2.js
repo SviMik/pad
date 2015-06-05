@@ -20,12 +20,26 @@
 //var _opt = (this.Easysync2Support || null);
 var _opt = null; // disable optimization for now
 
-function AttribPool() {
+function AttribPool(source) {
   var p = {};
   p.numToAttrib = {}; // e.g. {0: ['foo','bar']}
   p.attribToNum = {}; // e.g. {'foo,bar': 0}
   p.nextNum = 0;
 
+  if (typeof(source)=='object' && typeof(source.numToAttrib)=='object' && typeof(source.attribToNum)=='object' && typeof(source.nextNum)!='undefined') {
+    for (var num in source.numToAttrib) {
+      if (source.numToAttrib.hasOwnProperty(num) && typeof(source.numToAttrib[num])=='object') {
+        p.numToAttrib[num] = Array.prototype.slice.call(source.numToAttrib[num]);
+      }
+    }
+    for (var attrib in source.attribToNum) {
+      if (source.attribToNum.hasOwnProperty(attrib)) {
+        p.attribToNum[attrib] = source.attribToNum[attrib];
+      }
+    }
+    p.nextNum = source.nextNum;
+  }
+  
   p.putAttrib = function(attrib, dontAddIfAbsent) {
     var str = String(attrib);
     if (str in p.attribToNum) {
