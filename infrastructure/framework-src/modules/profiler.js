@@ -46,3 +46,11 @@ var rcb = function(op, cumulative) {
     (cumulative ? recordCumulative : record)(op, end-start);
   }
 }
+
+var _isStarted = false;
+var start = function() {
+  if (!_isStarted) {
+    Packages.net.appjet.oui.profiler.start();
+    _isStarted = true;
+  }
+}
