@@ -672,4 +672,61 @@ function removeFromMemory(pad) {
   collab_server.removeFromMemory(pad);
 }
 
+function getPadInternalRevisionAText(padId, r) {
+  var cacheKey = "atext/C/"+r+"/"+padId;
+  var modelCache = _getModelCache();
+  
+  var resultFromCache;
+  accessPadGlobal(padId, function(pad) {
+    var cachedValue = modelCache.get(cacheKey);
+    if (cachedValue) {
+      modelCache.touch(cacheKey);
+      resultFromCache = Changeset.cloneAText(cachedValue);
+    }
+  }, 'r');
+  if (resultFromCache) {
+    return resultFromCache;
+  }
+  
+  var keyRev;
+  var apool;
+  var atext;
+  accessPadGlobal(padId, function(pad) {
+    keyRev = pad.getKeyRevisionNumber(r);
+    apool = new AttribPool(pad.pool());
+    var revs = _getPadStringArray(padId, "revs");
+    var revmeta = _getPadStringArray(padId, "revmeta");
+    atext = revmeta.getJSONEntry(keyRev).atext;
+  }, 'r');
 
+  var curRev = keyRev;
+  var targetRev = r;
+  while (curRev < targetRev) {
+    curRev++;
+    var cs = accessPadGlobal(padId, function(pad) {
+      return pad.getRevisionChangeset(curRev);
+    }, 'r');
+    atext = Changeset.applyToAText(cs, atext, apool);
+  }
+  
+  accessPadGlobal(padId, function(pad) {
+    modelCache.put(cacheKey, Changeset.cloneAText(atext));
+  }, 'r');
+  return atext;
+}
+
+function getPadInternalRevisionText(padId, r, optInfoObj) {
+  var atext = getPadInternalRevisionAText(padId, r);
+  var text = atext.text;
+  if (optInfoObj) {
+    if (text.slice(-1) != "\n") {
+      optInfoObj.badLastChar = text.slice(-1);
+    }
+  }
+  return text;
+}
+
+function getPadRevisionText(padId, r, optInfoObj) {
+  var internalText = getPadInternalRevisionText(padId, r, optInfoObj);
+  return internalText.slice(0, -1);
+}
