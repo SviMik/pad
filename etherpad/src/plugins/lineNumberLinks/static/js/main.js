@@ -39,14 +39,14 @@ function lineNumberLinksInit() {
                     position: 'absolute',
                     left: '0px',
                     width: '100%',
-                    backgroundColor: 'rgb(108, 166, 255)',
+                    backgroundColor: 'rgb(60, 137, 255)',
                     zIndex: '1',
                     pointerEvents: 'none'
                 }).appendTo(outerBody);
             }
-            highlightDiv.stop();
+            highlightDiv.stop(true);
             highlightDiv.css({
-                opacity: '0.3',
+                opacity: '0.25',
                 top: (innerFrame.offset().top + lineDiv.offset().top) + 'px',
                 height: lineDiv.height() + 'px',
                 display: 'block'
@@ -58,7 +58,13 @@ function lineNumberLinksInit() {
                     height: lineDiv.height() + 'px',
                 });
             }
-            highlightDiv.animate({opacity: '0'}, {duration: 750, complete: function() {highlightDiv.css('display', 'none')}});
+            var animationId = {};
+            highlightDiv.animationId = animationId;
+            setTimeout(function() {
+                if (highlightDiv.animationId === animationId) {
+                    highlightDiv.animate({opacity: '0'}, {duration: 300, complete: function() {highlightDiv.css('display', 'none')}});
+                }
+            }, 700);
         }
     }
 
