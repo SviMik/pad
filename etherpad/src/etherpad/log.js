@@ -192,6 +192,15 @@ function _stampedMessage(m) {
   return obj;
 }
 
+function isLoggerEnabled(name) {
+    if (appjet.config.logInclude != '') {
+      return appjet.config.logInclude.split(',').indexOf(name) != -1;
+    }
+    else {
+      return appjet.config.logExclude.split(',').indexOf(name) == -1;
+    }
+}
+
 //----------------------------------------------------------------
 // logException
 //----------------------------------------------------------------
