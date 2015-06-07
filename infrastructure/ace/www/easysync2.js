@@ -818,9 +818,12 @@ Changeset.pack = function(oldLen, newLen, opsStr, bank) {
 };
 
 Changeset.applyToText = function(cs, str) {
+  function countNewlines(s) {
+    return s.length - s.replace(/\n/g, '').length;
+  }
+  
   var unpacked = Changeset.unpack(cs);
-  Changeset.assert(str.length == unpacked.oldLen,
-		   "mismatched apply: ",str.length," / ",unpacked.oldLen);
+  Changeset.assert(str.length == unpacked.oldLen, "mismatched apply (oldLen): ", str.length, " / ", unpacked.oldLen);
   var csIter = Changeset.opIterator(unpacked.ops);
   var bankIter = Changeset.stringIterator(unpacked.charBank);
   var strIter = Changeset.stringIterator(str);
@@ -828,12 +831,38 @@ Changeset.applyToText = function(cs, str) {
   while (csIter.hasNext()) {
     var op = csIter.next();
     switch(op.opcode) {
-    case '+': assem.append(bankIter.take(op.chars)); break;
-    case '-': strIter.skip(op.chars); break;
-    case '=': assem.append(strIter.take(op.chars)); break;
+    case '+':
+      var charsTaken = bankIter.take(op.chars)
+      var numNewlines = countNewlines(charsTaken);
+      Changeset.assert(numNewlines == op.lines, "mismatched operation (+): ", numNewlines, " / ", op.lines);
+      if(op.lines != 0) {
+        Changeset.assert(charsTaken[charsTaken.length-1] == '\n', "mismatched operation (+): the string must end with a newline");
+      }
+      assem.append(charsTaken);
+      break;
+    case '-':
+      var charsToSkip = strIter.peek(op.chars)
+      var numNewlines = countNewlines(charsToSkip);
+      Changeset.assert(numNewlines == op.lines, "mismatched operation (-): ", numNewlines, " / ", op.lines);
+      if(op.lines != 0) {
+        Changeset.assert(charsToSkip[charsToSkip.length-1] == '\n', "mismatched operation (-): the string must end with a newline");
+      }
+      strIter.skip(op.chars);
+      break;
+    case '=':
+      var charsTaken = strIter.take(op.chars);
+      var numNewlines = countNewlines(charsTaken);
+      Changeset.assert(numNewlines == op.lines, "mismatched operation (=): ", numNewlines, " / ", op.lines);
+      if(op.lines != 0) {
+        Changeset.assert(charsTaken[charsTaken.length-1] == '\n', "mismatched operation (=): the string must end with a newline");
+      }
+      assem.append(charsTaken);
+      break;
     }
   }
   assem.append(strIter.take(strIter.remaining()));
+  var result = assem.toString();
+  Changeset.assert(result.length == unpacked.newLen, "mismatched apply (newLen): ", result.length, " / ", unpacked.newLen);
   return assem.toString();
 };
 
