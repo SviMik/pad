@@ -103,6 +103,33 @@ function getStackTracePlain(ex) {
   return out.join("\n");
 }
 
+function getStackTraceConcise(ex) {
+  var result = {trace: [], message: ''};
+  if (ex.message) {
+    result.message = ex.message;
+  }
+  else if(ex.getMessage) {
+    result.message = ex.getMessage();
+  }
+  if (!ex.stackTrace || ex.stackTrace.length==0) {
+    ex = new java.lang.Throwable(result.message);
+  }
+  if (ex.stackTrace) {
+    var fileNamePrefix = 'module ';
+    ex.stackTrace.map(function(frame) {
+      var fileName = String(frame.fileName);
+      var lineNumber = parseInt(frame.lineNumber);
+      if (fileName.slice(-3).toLowerCase()=='.js' && !isNaN(lineNumber) && lineNumber>=0) {
+        if (fileName.slice(0, fileNamePrefix.length).toLowerCase()==fileNamePrefix) {
+          fileName = fileName.slice(fileNamePrefix.length);
+        }
+        result.trace.push(fileName+':'+frame.lineNumber);
+      }
+    });
+  }
+  return result;
+}
+
 /* template follows */
 var _tmpl = """<!DOCTYPE HTML PUBLIC
           "-//W3C//DTD XHTML 1.0 Strict//EN"
