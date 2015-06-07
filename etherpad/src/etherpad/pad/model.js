@@ -20,6 +20,7 @@ import("sqlbase.sqlcommon");
 import("sqlbase.sqlobj");
 import("timer");
 import("sync");
+import("exceptionutils");
 
 import("etherpad.collab.ace.easysync2.{Changeset,AttribPool}");
 import("etherpad.log");
@@ -105,8 +106,10 @@ function accessPadGlobal(padId, padFunc, rwMode) {
     return padFunc(p);
   }
 
+  var requestedLockTime = +new Date();
   return doWithPadLock(padId, function() {
     return sqlcommon.inTransaction(function() {
+      var acquiredLockTime = +new Date();
       var meta = _getPadMetaData(padId); // null if pad doesn't exist yet
 
       if (meta && ! meta.status) {
@@ -489,6 +492,13 @@ function accessPadGlobal(padId, padFunc, rwMode) {
 	    dbwriter.notifyPadDirty(padId);
 	  }
 	}
+        var releasedLockTime = +new Date();
+        var holdingTime = releasedLockTime-acquiredLockTime;
+        var waitingTime = acquiredLockTime-requestedLockTime;
+        if (holdingTime >= 100 || waitingTime >= 100 && log.isLoggerEnabled('performance')) {
+          var stackTrace = exceptionutils.getStackTraceConcise(new java.lang.RuntimeException()).trace;
+          log.custom('performance', {message: 'Pad lock', padId: padId, holdingTime: holdingTime, waitingTime: waitingTime, trace: stackTrace});
+        }
       }
     });
   });
