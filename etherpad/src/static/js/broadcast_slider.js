@@ -128,6 +128,7 @@ var global = this;
     $("#authorstable").empty();
     var numAnonymous = 0;
     var numNamed = 0;
+    authors = authors.filter(function(author) {return !!author;});
     authors.forEach(function(author) {
       if(author.name) {
         numNamed ++;
