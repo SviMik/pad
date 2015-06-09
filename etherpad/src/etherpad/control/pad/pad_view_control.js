@@ -27,6 +27,7 @@ import("stringutils.toHTML");
 import("etherpad.collab.server_utils.*");
 import("etherpad.collab.collab_server.buildHistoricalAuthorDataMapForPadHistory");
 import("etherpad.collab.collab_server.getATextForWire");
+import("etherpad.collab.ace.easysync2.AttribPool");
 import("etherpad.control.pad.pad_changeset_control.getChangesetInfo");
 import("etherpad.globals");
 import("fastJSON");
@@ -55,21 +56,22 @@ function onRequest() {
     return false;
   }
 
-  if (request.params.pt == 1) {
-    var padText = padutils.accessPadLocal(localPadId, function(pad) {
-      return pad.getRevisionText(rev.revNum);
-    }, 'r');
+  var padText = model.getPadRevisionText(padutils.getGlobalPadId(localPadId), rev.revNum)
 
+  if (request.params.pt == 1) {
     response.setContentType('text/plain; charset=utf-8');
     response.write(padText);
   } else {
-    var padContents, totalRevs, atextForWire, savedRevisions;
-    var supportsSlider;
+
+    var padHTML = _getPadHTML(localPadId, rev.revNum);
+
+    var atextForWire = padutils.accessPadLocal(localPadId, function(pad) {
+      return getATextForWire(pad, rev.revNum);
+    });
+
+    var totalRevs, savedRevisions, supportsSlider;
     padutils.accessPadLocal(localPadId, function(pad) {
-      padContents = [_getPadHTML(pad, rev.revNum),
-                     pad.getRevisionText(rev.revNum)];
       totalRevs = pad.getHeadRevisionNumber();
-      atextForWire = getATextForWire(pad, rev.revNum);
       savedRevisions = revisions.getRevisionList(pad);
       supportsSlider = pad.getSupportsTimeSlider();
     }, 'r');
@@ -139,9 +141,6 @@ function onRequest() {
       });
     }
     var documentBarTitle = (proTitle || "Public Pad");
-
-    var padHTML = padContents[0];
-    var padText = padContents[1];
 
     var historicalAuthorData = padutils.accessPadLocal(localPadId, function(pad) {
       return buildHistoricalAuthorDataMapForPadHistory(pad);
@@ -264,14 +263,15 @@ function _findLastGoodRevisionInPad(pad) {
   return revNum;
 }
 
-function _getPadHTML(pad, revNum) {
-  var atext = pad.getInternalRevisionAText(revNum);
+function _getPadHTML(localPadId, revNum) {
+  var atext = model.getPadInternalRevisionAText(padutils.getGlobalPadId(localPadId), revNum);
+  var apool = padutils.accessPadLocal(localPadId, function(pad) {
+    return new AttribPool(pad.pool());
+  }, 'r');
   var textlines = Changeset.splitTextLines(atext.text);
   var alines = Changeset.splitAttributionLines(atext.attribs,
                                                atext.text);
-
   var pieces = [];
-  var apool = pad.pool();
   for(var i=0;i<textlines.length;i++) {
     var line = textlines[i];
     var aline = alines[i];

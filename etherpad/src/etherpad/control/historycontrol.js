@@ -59,10 +59,10 @@ function _do_text(padId, r) {
     if (r > pad.getHeadRevisionNumber()) {
       _error("Revision number too large", _ERROR_REVISION_NUMBER_TOO_LARGE);
     }
-    var text = pad.getInternalRevisionText(r);
-    text = _censorText(text);
-    _replyWithJSONAndCache({ text: text });
   });
+  var text = model.getPadInternalRevisionText(padId, r);
+  text = _censorText(text);
+  _replyWithJSONAndCache({ text: text });
 }
 
 function _do_stat(padId) {
@@ -102,58 +102,64 @@ function _do_changes(padId, first, last) {
     return _encodeVarInt(txt.length);
   }
   
+  var apool;
   model.accessPadGlobal(padId, function(pad) {
-
     if (first > pad.getHeadRevisionNumber() || last > pad.getHeadRevisionNumber()) {
       _error("Revision number too large", _ERROR_REVISION_NUMBER_TOO_LARGE);      
     }
-    
-    var curAText = Changeset.makeAText("\n");
-    if (first > 0) {
-      curAText = pad.getInternalRevisionAText(first - 1);
-    }
-    curAText.text = _censorText(curAText.text);
-    var lastTimestamp = null;
-    for(var r=first;r<=last;r++) {
-      var binRev = [];
-      var timestamp = +pad.getRevisionDate(r);
-      binRev.push(_encodeTimeStamp(timestamp, lastTimestamp));
-      lastTimestamp = timestamp;
-      binRev.push(_encodeVarInt(1)); // fake author
-      
-      var c = pad.getRevisionChangeset(r);
-      var splices = Changeset.toSplices(c);
-      splices.forEach(function (splice) {
-        var startChar = splice[0];
-        var endChar = splice[1];
-        var newText = splice[2];
-        oldText = curAText.text.substring(startChar, endChar);
-        
-        if (oldText.length == 0) {
-          binRev.push('+');
-          binRev.push(_encodeVarInt(startChar));
-          binRev.push(charPoolText(newText));
-        }
-        else if (newText.length == 0) {
-          binRev.push('-');
-          binRev.push(_encodeVarInt(startChar));
-          binRev.push(charPoolText(oldText));
-        }
-        else {
-          binRev.push('*');
-          binRev.push(_encodeVarInt(startChar));
-          binRev.push(charPoolText(oldText));
-          binRev.push(charPoolText(newText));
-        }
-      });
-      changeList.push(binRev.join(''));
-
-      curAText = Changeset.applyToAText(c, curAText, pad.pool());
-    }
-    
-    _replyWithJSONAndCache({charPool: charPool.join(''), changes: changeList.join(',')});
-    
+    apool = new AttribPool(pad.pool());
   });
+    
+  var curAText = Changeset.makeAText("\n");
+  if (first > 0) {
+    curAText = model.getPadInternalRevisionAText(first - 1);
+  }
+  curAText.text = _censorText(curAText.text);
+  var lastTimestamp = null;
+  for(var r=first;r<=last;r++) {
+    var binRev = [];
+    var timestamp;
+    model.accessPadGlobal(padId, function(pad) {
+      timestamp = +pad.getRevisionDate(r);
+    });
+    binRev.push(_encodeTimeStamp(timestamp, lastTimestamp));
+    lastTimestamp = timestamp;
+    binRev.push(_encodeVarInt(1)); // fake author
+    
+    var c;
+    model.accessPadGlobal(padId, function(pad) {
+      c = pad.getRevisionChangeset(r);
+    });
+    var splices = Changeset.toSplices(c);
+    splices.forEach(function (splice) {
+      var startChar = splice[0];
+      var endChar = splice[1];
+      var newText = splice[2];
+      oldText = curAText.text.substring(startChar, endChar);
+      
+      if (oldText.length == 0) {
+        binRev.push('+');
+        binRev.push(_encodeVarInt(startChar));
+        binRev.push(charPoolText(newText));
+      }
+      else if (newText.length == 0) {
+        binRev.push('-');
+        binRev.push(_encodeVarInt(startChar));
+        binRev.push(charPoolText(oldText));
+      }
+      else {
+        binRev.push('*');
+        binRev.push(_encodeVarInt(startChar));
+        binRev.push(charPoolText(oldText));
+        binRev.push(charPoolText(newText));
+      }
+    });
+    changeList.push(binRev.join(''));
+
+    curAText = Changeset.applyToAText(c, curAText, apool);
+  }
+  
+  _replyWithJSONAndCache({charPool: charPool.join(''), changes: changeList.join(',')});
 }
 
 function render_history(padOpaqueRef, rest) {

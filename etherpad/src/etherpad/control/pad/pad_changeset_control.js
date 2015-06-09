@@ -168,10 +168,7 @@ function getChangesetInfo(padId, startNum, endNum, granularity) {
   }
   endNum = Math.floor(endNum / granularity)*granularity;
 
-  var lines;
-  padutils.accessPadLocal(padId, function(pad) {
-    lines = _getPadLines(pad, startNum-1);
-  }, 'r');
+  var lines = _getPadLines(padId, startNum-1);
   _profiler.lap('L');
 
   var compositeStart = startNum;
@@ -260,11 +257,11 @@ function _composePadChangesets(pad, startNum, endNum) {
 
 // Get arrays of text lines and attribute lines for a revision
 // of a pad.
-function _getPadLines(pad, revNum) {
+function _getPadLines(padId, revNum) {
   var atext;
   _profiler.lap('PL0');
   if (revNum >= 0) {
-    atext = pad.getInternalRevisionAText(revNum);
+    atext = model.getPadInternalRevisionAText(padutils.getGlobalPadId(padId), revNum);
   }
   else {
     atext = Changeset.makeAText("\n");
