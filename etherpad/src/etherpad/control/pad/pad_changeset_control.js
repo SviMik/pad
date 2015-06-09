@@ -159,8 +159,10 @@ function getChangesetInfo(padId, startNum, endNum, granularity) {
   // are unaffected by new revisions being added to the pad.
 
   var lastRev;
+  var padPool;
   padutils.accessPadLocal(padId, function(pad) {
     lastRev = pad.getHeadRevisionNumber();
+    padPool = new AttribPool(pad.pool());
   }, 'r');
 
   if (endNum > lastRev+1) {
@@ -172,28 +174,11 @@ function getChangesetInfo(padId, startNum, endNum, granularity) {
   _profiler.lap('L');
 
   var compositeStart = startNum;
-  while (compositeStart < endNum) {
-    var whileBodyResult = padutils.accessPadLocal(padId, function(pad) {
+  while (compositeStart + granularity <= endNum) {
+    var compositeEnd = compositeStart + granularity;
+    var forwards;
+    padutils.accessPadLocal(padId, function(pad) {
       _profiler.lap('c0');
-      if (compositeStart + granularity > endNum) {
-        return "break";
-      }
-      var compositeEnd = compositeStart + granularity;
-      var forwards = _composePadChangesets(pad, compositeStart, compositeEnd);
-      _profiler.lap('c1');
-      var backwards = Changeset.inverse(forwards, lines.textlines,
-                                        lines.alines, pad.pool());
-
-      _profiler.lap('c2');
-      Changeset.mutateAttributionLines(forwards, lines.alines, pad.pool());
-      _profiler.lap('c3');
-      Changeset.mutateTextLines(forwards, lines.textlines);
-      _profiler.lap('c4');
-
-      var forwards2 = Changeset.moveOpsToNewPool(forwards, pad.pool(), apool);
-      _profiler.lap('c5');
-      var backwards2 = Changeset.moveOpsToNewPool(backwards, pad.pool(), apool);
-      _profiler.lap('c6');
       function revTime(r) {
         var date = pad.getRevisionDate(r);
         var s = Math.floor((+date)/1000);
@@ -210,16 +195,27 @@ function getChangesetInfo(padId, startNum, endNum, granularity) {
       }
       t2 = revTime(compositeEnd - 1);
       timeDeltas.push(t2 - t1);
-
-      _profiler.lap('c7');
-      forwardsChangesets.push(forwards2);
-      backwardsChangesets.push(backwards2);
-
-      compositeStart += granularity;
+      _profiler.lap('c1');
+      forwards = _composePadChangesets(pad, compositeStart, compositeEnd);
+      _profiler.lap('c2');
     }, 'r');
-    if (whileBodyResult == "break") {
-      break;
-    }
+    var backwards = Changeset.inverse(forwards, lines.textlines,
+                                      lines.alines, padPool);
+
+    _profiler.lap('c3');
+    Changeset.mutateAttributionLines(forwards, lines.alines, padPool);
+    _profiler.lap('c4');
+    Changeset.mutateTextLines(forwards, lines.textlines);
+    _profiler.lap('c5');
+
+    var forwards2 = Changeset.moveOpsToNewPool(forwards, padPool, apool);
+    _profiler.lap('c6');
+    var backwards2 = Changeset.moveOpsToNewPool(backwards, padPool, apool);
+    _profiler.lap('c7');
+    forwardsChangesets.push(forwards2);
+    backwardsChangesets.push(backwards2);
+
+    compositeStart += granularity;
   }
 
   log.custom("getchangesetinfo", {event: "finish", callId:callId,
