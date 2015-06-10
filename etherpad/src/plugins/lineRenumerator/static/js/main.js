@@ -28,7 +28,8 @@ function lineRenumeratorPluginInit() {
         if (!window.$ || !(window.padeditor && window.padeditor.ace))
             return;
 
-        var currentLineNumber = -1;
+        var lastLineCount = -1;
+        var lastLineNumberDivCount = -1;
         var start = 0;
         
         var isAceInitialized = false;
@@ -45,9 +46,10 @@ function lineRenumeratorPluginInit() {
 
             var lines = text.split('\n');
 
-            if (lines.length == currentLineNumber && getLinesOffset() == start)
+            if (lines.length == lastLineCount && numbers.length == lastLineNumberDivCount && getLinesOffset() == start)
                 return;
-            currentLineNumber = lines.length;
+            lastLineCount = lines.length;
+            lastLineNumberDivCount = numbers.length;
             start = getLinesOffset();
 
             for (var i = 0; i < start; i++) {
