@@ -95,7 +95,7 @@ function setAutoSigninCookie(rememberMe) {
     path: "/ep/account/",
     domain: request.domain,
     expires: new Date(32503708800000), // year 3000
-    secure: true
+    secure: false
   });
 }
 
