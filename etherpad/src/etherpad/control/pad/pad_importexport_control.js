@@ -32,6 +32,7 @@ import("etherpad.sessions");
 import("etherpad.sessions.getSession");
 import("etherpad.utils.{render404,renderFramedError}");
 import("etherpad.collab.server_utils");
+import("etherpad.admin.plugins");
 
 jimport("org.apache.commons.fileupload");
 
@@ -323,6 +324,8 @@ function render_import2() {
   }
 
   if (! request.params.padId) { _r("fail"); }
+  var pluginAccess = plugins.callHook("isWritingToPadAllowed", {pad: padutils.getGlobalPadId(request.params.padId)}).every(Boolean);
+  if (! pluginAccess) { _r("fail"); }
   padutils.accessPadLocal(request.params.padId, function(pad) {
     if (! pad.exists()) {
       _r("fail");

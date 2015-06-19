@@ -123,6 +123,10 @@ function _getPadRevisionSockets(pad) {
 
 function applyUserChanges(pad, baseRev, changeset, optSocketId, optAuthor) {
   // changeset must be already adapted to the server's apool
+  var pluginAccess = plugins.callHook("isWritingToPadAllowed", {pad: pad.getId()}).every(Boolean);
+  if (!pluginAccess) {
+    return;
+  }
 
   var apool = pad.pool();
   var r = baseRev;
@@ -224,9 +228,8 @@ function applyMissedChanges(pad, missedChanges) {
     return;
   }
 
-  var plugin_checks = plugins.callHook("collabServerApplyMissedChanges", {pad: pad.getId()});
-  var plugin_access = plugin_checks.every(function(value) {return !!value;});
-  if (!plugin_access) {
+  var pluginAccess = plugins.callHook("collabServerApplyMissedChanges", {pad: pad.getId()}).every(Boolean);
+  if (!pluginAccess) {
     return;
   }
 
@@ -333,6 +336,10 @@ function applyChangesetToPad(pad, changeset) {
 }
 
 function _applyChangesetToPad(pad, changeset) {
+  var pluginAccess = plugins.callHook("isWritingToPadAllowed", {pad: pad.getId()}).every(Boolean);
+  if (!pluginAccess) {
+    return;
+  }
   pad.appendRevision(changeset);
   updatePadClients(pad);
 }
@@ -743,9 +750,8 @@ function _handleCometMessage(connection, msg) {
     });
   }
   else if (msg.type == "CLIENT_MESSAGE") {
-    var plugin_checks = plugins.callHook("collabServerClientMessage", {pad: _roomToPadId(connection.roomName), msg: msg});
-    var plugin_access = plugin_checks.every(function(value) {return !!value;});
-    if (!plugin_access)
+    var pluginAccess = plugins.callHook("collabServerClientMessage", {pad: _roomToPadId(connection.roomName), msg: msg}).every(Boolean);
+    if (!pluginAccess)
         return false;
     _accessConnectionPad(connection, "CLIENT_MESSAGE", function(pad) {
       var payload = msg.payload;

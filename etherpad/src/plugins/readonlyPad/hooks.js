@@ -43,6 +43,15 @@ function collabServerApplyMissedChanges(args) {
     }
 }
 
+function isWritingToPadAllowed(args) {
+    if (isWritingAllowed(args)) {
+        return [true];
+    } else {
+        log.info({message: 'Rejected writing attempt', args: args});
+        return [false];
+    }
+}
+
 function isWritingAllowed(args) {
     var result = true;
     model.accessPadGlobal(args.pad, function(pad) {
