@@ -52,7 +52,7 @@ function lineRenumeratorPluginInit() {
             lastLineNumberDivCount = numbers.length;
             start = getLinesOffset();
 
-            for (var i = 0; i < start; i++) {
+            for (var i = 0; i < start && i < numbers.length; i++) {
                 numbers[i].textContent = 'A' + (i+1);
             }
             for (var i = start; i < numbers.length; i++) {

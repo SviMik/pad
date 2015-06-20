@@ -64,7 +64,7 @@ function lineNumberLinksInit() {
                 if (highlightDiv.animationId === animationId) {
                     highlightDiv.animate({opacity: '0'}, {duration: 300, complete: function() {highlightDiv.css('display', 'none')}});
                 }
-            }, 700);
+            }, 2000);
         }
     }
 
