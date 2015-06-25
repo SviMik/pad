@@ -72,6 +72,11 @@ function getRoomCallbacks(roomName, emptyCallbacks) {
 }
 
 function updatePadClients(pad) {
+  var dontUpdateTimeSliderInRealTime = (appjet.config['etherpad.dontUpdateTimeSliderInRealTime'] || '').match(/^ *true *$/i);
+  if (dontUpdateTimeSliderInRealTime) {
+    return;
+  }
+
   var padId = pad.getId();
   var roId = padIdToReadonly(padId);
 
@@ -169,6 +174,11 @@ function updateUserInfo(pad, userInfo) {
 }
 
 function broadcastNewRevision(pad, revObj) {
+  var dontUpdateTimeSliderInRealTime = (appjet.config['etherpad.dontUpdateTimeSliderInRealTime'] || '').match(/^ *true *$/i);
+  if (dontUpdateTimeSliderInRealTime) {
+    return;
+  }
+  
   var msg = { type:"NEW_SAVEDREV",
               savedRev: revObj };
 
