@@ -26,21 +26,15 @@ function onRequest() {
 
 	function getPadHTML(padId){
 		var usePadId = padutils.getGlobalPadId(padId);
-		var pad_data=model.accessPadGlobal(usePadId, function(pad) {
-			if(!pad.exists()){
-				return false;
-			}
-    			var cloneRevNum = pad.getHeadRevisionNumber();
-    			var atext=pad.getInternalRevisionAText(cloneRevNum);
-			return [new AttribPool(pad.pool()), cloneRevNum, atext];
-		});
 
-		if(pad_data===false){
+		var cloneRevNum=getPadRevision(padId);
+		if(cloneRevNum===false){
 			return false;
 		}
-		var apool=pad_data[0];
-		var cloneRevNum=pad_data[1];
-		var atext=pad_data[2];
+		var apool=model.accessPadGlobal(usePadId, function(pad) {
+			return new AttribPool(pad.pool());
+		});
+		var atext=model.getPadInternalRevisionAText(usePadId, cloneRevNum);
 
 		var textlines = Changeset.splitTextLines(atext.text);
 		var alines = Changeset.splitAttributionLines(atext.attribs, atext.text);
