@@ -1,4 +1,4 @@
-
+﻿
 import("faststatic");
 import("dispatch.{Dispatcher,PrefixMatcher,forward}");
 import("etherpad.pad.padutils");
@@ -60,29 +60,35 @@ function onRequest() {
 		return true;
 	}
 
-	/* Make this file downloadable */
-	response.setHeader("Content-Disposition", "attachment; filename=\""+argv[2]+"_"+lang+".ass\"");
-
-	/* Write UTF BOM */
-	response.write("\uFEFF");
+	/* Output buffer */
+	var buf="";
 
 	/* Get header pad text */
 	var headerText=getPadText("assheader");
+	var styles=new Array();
 	if(headerText!=false && headerText!=""){
 		var tmp=headerText.replace(/[ ]{2,}/g, ' ').split("\n");
 		var prev_str="";
 		for(k in tmp){
 			var str=trim(tmp[k].replace(/;.*/, ""));
 			if(str!=prev_str){
-				response.write(str+"\r\n");
+				buf+=str+"\r\n";
 				prev_str=str;
 			}
+			// Style parser
+			var m=str.match(/^Style:[ ]*([^,]+),(.*)/);
+			if(m!=null && typeof(m[2])!="undefined"){
+				styles[m[1]]=m[2].split("\n");
+			}
 		}
+	}else{
+		response.write("Can't read assheader pad");
+		return true;
 	}
 
 	/* Events block header */
-	response.write("[Events]\r\n");
-	response.write("Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\r\n");
+	buf+="[Events]\r\n";
+	buf+="Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\r\n";
 
 	var tmp=padText.replace(/\[[^\]]+\]/g, "").replace(/[ ]{2,}/g, ' ').split("\n");
 	for(k in tmp){
@@ -93,6 +99,10 @@ function onRequest() {
 			var t=parseInt(m[1], 10)*60+parseFloat(m[2]);
 			var l=parseFloat(m[3]);
 			var name=m[4].replace(/\s/, '');
+			if(typeof(styles[name])=="undefined"){
+				response.write("Error: Missing style for "+name+"\n\nPlease add style to \"assheader\" pad (or fix name in the \""+argv[2]+"\" pad)");
+				return true;
+			}
 			var text_en=trim(m[5].replace(/\[[^\[\]]+\]/g, '').replace(/([a-zA-Z][^ ]+) [^a-zA-Z]+$/g, '$1'));
 			var text_ru=trim(m[6].replace(/\[[^\[\]]+\]/g, ''));
 			var text=(lang=="en") ? text_en : text_ru;
@@ -100,10 +110,19 @@ function onRequest() {
 				text=trim(text_en+" "+text_ru);
 			}
 			if(text!=""){
-				response.write("Dialogue: 0,0:"+htime(t, 2)+",0:"+htime(t+l, 2)+","+name+",,0,0,0,,"+text+"\r\n");
+				buf+="Dialogue: 0,0:"+htime(t, 2)+",0:"+htime(t+l, 2)+","+name+",,0,0,0,,"+text+"\r\n";
 			}
 		}
 	}
+
+	/* Make this file downloadable */
+	response.setHeader("Content-Disposition", "attachment; filename=\""+argv[2]+"_"+lang+".ass\"");
+
+	/* Write UTF BOM */
+	response.write("\uFEFF");
+
+	/* Flush data */
+	response.write(buf);
 
 	} catch(e) {
 		response.write(e);
