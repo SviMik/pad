@@ -2,7 +2,7 @@ function ponyNamesDecoratorInit() {
 	this.hooks = ['aceInitInnerdocbodyHead', 'aceGetFilterStack'];
 
 	this.aceInitInnerdocbodyHead = function(args) {
-		args.iframeHTML.push('\'<link rel="stylesheet" type="text/css" href="/static/css/plugins/ponyNamesDecorator/pad.css"/>\'');
+		args.iframeHTML.push('\'<link rel="stylesheet" type="text/css" href="/static/css/plugins/ponyNamesDecorator/pad.css?v=20150620"/>\'');
 	}
 
 	function getPonyNamesFilter(linestylefilter){
