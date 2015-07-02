@@ -63,6 +63,9 @@ function onRequest() {
 	/* Make this file downloadable */
 	response.setHeader("Content-Disposition", "attachment; filename=\""+argv[2]+"_"+lang+".ass\"");
 
+	/* Write UTF BOM */
+	response.write("\uFEFF");
+
 	/* Get header pad text */
 	var headerText=getPadText("assheader");
 	if(headerText!=false && headerText!=""){
