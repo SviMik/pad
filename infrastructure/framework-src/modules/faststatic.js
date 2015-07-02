@@ -125,7 +125,7 @@ function manglePluginPaths(localFile) {
 function wrapFile(localFile) {
   return {
     getPath: function() { return localFile; },
-    getMTime: function() { return getMTime(localFile); },
+    getMTime: function() { return getMTime(manglePluginPaths(localFile)); },
     getContents: function() { return readFileAndProcess(manglePluginPaths(localFile), 'string'); },
     getBytes: function() { return readFileAndProcess(manglePluginPaths(localFile), 'bytes'); }
   };
