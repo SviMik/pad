@@ -109,6 +109,7 @@ function onRequest() {
 			if(name=="Auto" || name=="Multilang"){
 				text=trim(text_en+" "+text_ru);
 			}
+			text=text.replace(/[\s]*\u21B2[\s]*/g, "\\N"); // newline symbol (downwards arrow with tip leftwards)
 			if(text!=""){
 				buf+="Dialogue: 0,0:"+htime(t, 2)+",0:"+htime(t+l, 2)+","+name+",,0,0,0,,"+text+"\r\n";
 			}
