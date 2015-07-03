@@ -103,7 +103,7 @@ function onRequest() {
 				response.write("Error: Missing style for "+name+"\n\nPlease add style to \"assheader\" pad (or fix name in the \""+argv[2]+"\" pad)");
 				return true;
 			}
-			var text_en=trim(m[5].replace(/\[[^\[\]]+\]/g, '').replace(/([a-zA-Z][^ ]+) [^a-zA-Z]+$/g, '$1'));
+			var text_en=trim(m[5].replace(/\[[^\[\]]+\]/g, '').replace(/([a-zA-Z][^ ]*) [^a-zA-Z]+$/g, '$1'));
 			var text_ru=trim(m[6].replace(/\[[^\[\]]+\]/g, ''));
 			var text=(lang=="en") ? text_en : text_ru;
 			if(name=="Auto" || name=="Multilang"){
