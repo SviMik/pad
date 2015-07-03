@@ -94,7 +94,7 @@ function onRequest() {
 	for(k in tmp){
 		var str=trim(tmp[k]);
 		// build subtitles
-		m=str.match(/^\[?([0-9]{2}):([0-9]{2}\.[0-9]{1,2}),([0-9\.]+)\]?[ ]*([^:]+):([^а-яА-ЯёЁ]+)(.*)/);
+		m=str.match(/^\[?([0-9]{2}):([0-9]{2}\.[0-9]{1,2}),([0-9\.]+)\]?[ ]*([^:]+):([^а-яА-ЯёЁ\u2192]+)(.*)/);
 		if(m!=null && typeof(m[5])!="undefined"){
 			var t=parseInt(m[1], 10)*60+parseFloat(m[2]);
 			var l=parseFloat(m[3]);
@@ -103,8 +103,8 @@ function onRequest() {
 				response.write("Error: Missing style for "+name+"\n\nPlease add style to \"assheader\" pad (or fix name in the \""+argv[2]+"\" pad)");
 				return true;
 			}
-			var text_en=trim(m[5].replace(/\[[^\[\]]+\]/g, '').replace(/([a-zA-Z][^ ]*) [^a-zA-Z]+$/g, '$1'));
-			var text_ru=trim(m[6].replace(/\[[^\[\]]+\]/g, ''));
+			var text_en=trim(m[5].replace(/\[[^\[\]]+\]/g, '').replace(/([a-zA-Z][^ ]*) [^a-zA-Z]+$/g, '$1')); // remove symbols from the end of line
+			var text_ru=trim(m[6].replace(/\[[^\[\]]+\]/g, '')).replace(/^\u2192[\s]*/, ""); // remove arrow from the start of line
 			var text=(lang=="en") ? text_en : text_ru;
 			if(name=="Auto" || name=="Multilang"){
 				text=trim(text_en+" "+text_ru);
