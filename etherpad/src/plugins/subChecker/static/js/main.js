@@ -11,6 +11,7 @@
 		var data='\
 		<div style="float:left">\
 			<select id=c_error_level onchange="subChecker.check()">\
+				<option value=0 id=c_error_0>All</option>\
 				<option value=10 id=c_error_10>Errors</option>\
 				<option value=5 id=c_error_5>Warnings</option>\
 				<option value=2 id=c_error_2>Info</option>\
@@ -61,12 +62,13 @@
 				<tbody>';
 		
 		var tcnt=new Array();
+		tcnt[0]=0;
 		tcnt[2]=0;
 		tcnt[5]=0;
 		tcnt[10]=0;
 		for (i in errors) {
 			tcnt[errors[i].level]++;
-			if (errors[i].level == error_level) {
+			if (errors[i].level == error_level || error_level==0) {
 				var line=errors[i].line+1-subChecker.line_renumerator_offset;
 				res += '<tr>\
 					<td>'+(errors[i].level>5 ? "Error" : "Warn")+'</td>\
@@ -75,10 +77,12 @@
 					<td>' + errors[i].descr + '</td></tr>';
 				cnt++;
 			}
+			tcnt[0]++;
 		}
 
 		res += '</tbody></table>';
 
+		g("c_error_0").innerHTML="All ("+tcnt[0]+")";
 		g("c_error_10").innerHTML="Errors ("+tcnt[10]+")";
 		g("c_error_5").innerHTML="Warnings ("+tcnt[5]+")";
 		g("c_error_2").innerHTML="Info ("+tcnt[2]+")";
