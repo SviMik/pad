@@ -125,8 +125,8 @@
 			// build subtitles
 			var m = str.match(/^\[?([0-9]{2}):([0-9]{2}\.[0-9]{1,2}),([0-9\.]+)\]?[ ]*([^:]+):([^а-яА-ЯёЁ\u2192]+)(.*)/);
 			if(m != null && typeof(m[5]) != "undefined"){
-				// var t = parseInt(m[1], 10)*60+parseFloat(m[2]);
-				// var l = parseFloat(m[3]);
+				var t = parseInt(m[1], 10)*60+parseFloat(m[2]);
+				var l = parseFloat(m[3]);
 				var name = m[4].trim();
 				var text_en = m[5].replace(/\[[^\[\]]+\]/g, '').replace(/([a-zA-Z][^ ]*) [^a-zA-Z]+$/g, '$1').trim();
 				var text_ru = m[6].replace(/\[[^\[\]]+\]/g, '').trim().replace(/^\u2192[\s]*/, "");
@@ -136,7 +136,7 @@
 					text_ru = text;
 				}
 				//console.log(t, l, name, text_en, text_ru);
-				new_subs.push([parseInt(k), name, [text_en, text_ru]]);
+				new_subs.push([parseInt(k), t, l, name, [text_en, text_ru]]);
 			}
 		}
 		this.subs = new_subs;
@@ -149,11 +149,15 @@
 		var level_maybe_error = 5;
 		var level_info = 2;
 	
+		var t_prev_end=0;
+
 		for(k in subs){
 			var line = subs[k][0];
-			var name = subs[k][1];
-			for (lang in subs[k][2]) {
-				var text = subs[k][2][lang].replace("\\N", "\n");
+			var t = subs[k][1];
+			var l = subs[k][2];
+			var name = subs[k][3];
+			for (lang in subs[k][4]) {
+				var text = subs[k][4][lang].replace("\\N", "\n");
 	
 				if (text.match(/\.\.\./))
 					errors.push({level : level_error, line : line, lang: lang, descr : "Неверное троеточие. Стоит заменить на это: …"});
@@ -176,6 +180,10 @@
 				}
 				// TODO: unknown symbols
 			}
+			if(t_prev_end-t>0.006){
+				errors.push({level : level_error, line : line, lang: 0, descr : "Наложение реплик в тайминге на "+(t_prev_end-t).toFixed(2)+"с"});
+			}
+			t_prev_end=t+l;
 		}
 	
 		return errors;
