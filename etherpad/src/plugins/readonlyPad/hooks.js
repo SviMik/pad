@@ -26,6 +26,9 @@ function collabServerUserChanges(args) {
 function collabServerClientMessage(args) {
     //log.info({message: 'collabServerClientMessage', args: args});
     if (isWritingAllowed(args) || args.msg && args.msg.payload && args.msg.payload.type=='chat') {
+        if (args.msg && args.msg.payload && args.msg.payload.type=='padoptions' && args.msg.payload.options && args.msg.payload.options.view && args.msg.payload.options.view.readonlyPadPolicy!==undefined) {
+            log.info({message: 'Changing read-only policy', args: args});
+        }
         return [true];
     } else {
         log.info({message: 'Rejected client message', args: args});
