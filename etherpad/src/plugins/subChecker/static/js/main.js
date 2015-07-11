@@ -4,6 +4,7 @@
 	this.show = function(){
 		if(g("checker_container")){
 			g("checker_container").style.display="";
+			this.check();
 			return;
 		}
 
@@ -114,10 +115,13 @@
 		
 		this.pad_prev_data=tmp;
 	
-		tmp = tmp.replace(/<i>.*?<\/i>/gi, '').replace(/<s>.*?<\/s>/gi, '').replace(/<\/?[^>]+>/gi, '').replace(/&nbsp;/g, ' ').replace(/[ ]{2,}/g, ' ').replace(/<b> /g, ' <b>').split("\n");
+		var tmp_html = tmp.replace(/&nbsp;/g, ' ').replace(/[ ]{2,}/g, ' ').replace(/<b> /g, ' <b>').split("\n");
+		tmp = tmp.replace(/<\/?[^>]+>/gi, '').replace(/&nbsp;/g, ' ').replace(/[ ]{2,}/g, ' ').replace(/<b> /g, ' <b>').split("\n");
+
 		var new_subs=[];
 		for(k in tmp){
 			var str = tmp[k];
+			var str_html = tmp_html[k];
 			if(typeof(str) != "string"){ // Shit happens in IE
 				continue;
 			}
@@ -140,7 +144,7 @@
 					text_ru = text;
 				}
 				//console.log(t, l, name, text_en, text_ru);
-				new_subs.push([parseInt(k), t, l, name, [text_en, text_ru]]);
+				new_subs.push([parseInt(k), t, l, name, [text_en, text_ru, str_html]]);
 			}
 		}
 		this.subs = new_subs;
@@ -162,6 +166,14 @@
 			var name = subs[k][3];
 			for (lang in subs[k][4]) {
 				var text = subs[k][4][lang].replace("\\N", "\n");
+
+				if (lang == 2) { // HTML checks
+					if (text.match(/<i>/))
+						errors.push({level : level_error, line : line, lang: lang, descr : "Курсив в тексте (не зашито?)"});
+					if (text.match(/<s>/))
+						errors.push({level : level_error, line : line, lang: lang, descr : "Зачёркнутый текст (не зашито?)"});
+					continue;
+				}
 	
 				if (text.match(/\.\.\./))
 					errors.push({level : level_error, line : line, lang: lang, descr : "Неверное троеточие. Стоит заменить на это: …"});
