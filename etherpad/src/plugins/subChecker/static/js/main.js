@@ -116,7 +116,7 @@
 		this.pad_prev_data=tmp;
 	
 		var tmp_html = tmp.replace(/&nbsp;/g, ' ').replace(/[ ]{2,}/g, ' ').replace(/<b> /g, ' <b>').split("\n");
-		tmp = tmp.replace(/<\/?[^>]+>/gi, '').replace(/&nbsp;/g, ' ').replace(/[ ]{2,}/g, ' ').replace(/<b> /g, ' <b>').split("\n");
+		tmp = tmp.replace(/<\/?[^>]+>/gi, '').replace(/\{\\i1\}/g, ' ').replace(/&nbsp;/g, ' ').replace(/[ ]{2,}/g, ' ').replace(/<b> /g, ' <b>').split("\n");
 
 		var new_subs=[];
 		for(k in tmp){
