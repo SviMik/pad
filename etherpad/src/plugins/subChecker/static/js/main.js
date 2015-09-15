@@ -58,8 +58,8 @@
 		var res = '<table id="subs_errors">\
 				<thead>\
 					<tr>\
-						<th width=50></th>\
 						<th width=40 align=left>Line</th>\
+						<th width=50></th>\
 						<th width=40 align=left>Lang</th>\
 						<th>Message</th>\
 					</tr>\
@@ -71,15 +71,18 @@
 		tcnt[2]=0;
 		tcnt[5]=0;
 		tcnt[10]=0;
+        var prevLine = -1;
 		for (i in errors) {
 			tcnt[errors[i].level]++;
 			if (errors[i].level == error_level || error_level==0) {
 				var line=errors[i].line+1-subChecker.line_renumerator_offset;
+                var lineHtml = line==prevLine ? '' : '<a href="javascript:subChecker.go_to_line('+line+');void(0)">'+line+'</a>';
 				res += '<tr>\
-					<td>'+(errors[i].level>5 ? "Error" : "Warn")+'</td>\
-					<td><a href="javascript:subChecker.go_to_line('+line+');void(0)">'+line+'</a></td>\
+					<td>'+lineHtml+'</td>\
+					<td>'+(errors[i].level>5 ? "Error" : errors[i].level>2 ? "Warn" : "Info")+'</td>\
 					<td>'+(errors[i].lang==0 ? "EN" : "RU")+'</td>\
 					<td>' + errors[i].descr + '</td></tr>';
+                prevLine = line;
 				cnt++;
 			}
 			tcnt[0]++;
