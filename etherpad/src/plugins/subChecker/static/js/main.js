@@ -17,9 +17,13 @@
 				<option value=5 id=c_error_5>Warnings</option>\
 				<option value=2 id=c_error_2>Info</option>\
 			</select>\
+            <span style="margin-left: 30px"/>\
+			Download: \
+            <a href="'+location.origin+'/assExport/'+pad.getPadId()+'/en">en</a> / \
+            <a href="'+location.origin+'/assExport/'+pad.getPadId()+'/ru">ru</a> \
 		</div>\
 		<div style="float:right">\
-			<a href="javascript:subChecker.check();void(0)">Run</a> &nbsp; \
+			<a href="javascript:subChecker.check();void(0)">Refresh</a> &nbsp; \
 			<a href="javascript:subChecker.hide();void(0)">Close</a><br>\
 		</div>\
 		<div style="clear:both;height:1px;overflow:hidden"></div>\
