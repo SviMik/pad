@@ -165,24 +165,26 @@
 			var l = subs[k][2];
 			var name = subs[k][3];
 			for (lang in subs[k][4]) {
-				var text = subs[k][4][lang].replace("\\N", "\n");
+				var text = subs[k][4][lang].replace(/\\N/gi, "\n");
 
 				if (lang == 2) { // HTML checks
 					if (text.match(/<i>/))
 						errors.push({level : level_error, line : line, lang: lang, descr : "Курсив в тексте (не зашито?)"});
 					if (text.match(/<s>/))
 						errors.push({level : level_error, line : line, lang: lang, descr : "Зачёркнутый текст (не зашито?)"});
+					if (text.match(/<span +class *= *"author/))
+						errors.push({level : level_maybe_error, line : line, lang: lang, descr : "Цветной текст"});
 					continue;
 				}
 	
 				if (text.match(/\.\.\./))
 					errors.push({level : level_error, line : line, lang: lang, descr : "Неверное троеточие. Стоит заменить на это: …"});
-				if (text.match(/[^\!\?\.]\.\.[^\.]/))
-					errors.push({level : level_maybe_error, line : line, lang: lang, descr : "Две точки без предшествующих ! или ?. Вероятно, имеет место быть ошибка."});
+				if (text.match(/[^\!\?\.]\.\.([^\.]|$)/))
+					errors.push({level : level_error, line : line, lang: lang, descr : "Две точки без предшествующих ! или ?. Вероятно, имеет место быть ошибка."});
 				if (text.match(/\s\-\s/))
-					errors.push({level : level_maybe_error, line : line, lang: lang, descr : "Минус, окружённый пробелами. Вероятно, имеет место быть ошибка."});
-				if (text.match(/\-\-+/))
-					errors.push({level : level_error, line : line, lang: lang, descr : "Несколько минусов подряд. Стоит заменить на – или —."});
+					errors.push({level : level_error, line : line, lang: lang, descr : "Минус, окружённый пробелами. Вероятно, имеет место быть ошибка."});
+				if (text.match(/\+|[^\s]-[^a-zа-яё]|\s-[^\s]|-$/i))
+					errors.push({level : level_error, line : line, lang: lang, descr : "Плюсы или минусы в строке."});
 				if (text.match(/[\/\\\(\)\[\]]/))
 					errors.push({level : level_error, line : line, lang: lang, descr : "Не зашитая строка или комментарии."});
 	
