@@ -19,8 +19,8 @@
 			</select>\
             <span style="margin-left: 30px"/>\
 			Download: \
-            <a href="'+location.origin+'/assExport/'+pad.getPadId()+'/en">en</a> / \
-            <a href="'+location.origin+'/assExport/'+pad.getPadId()+'/ru">ru</a> \
+            <a href="'+location.origin+'/assExport/'+pad.getPadId()+'/en" target="_blank">en</a> / \
+            <a href="'+location.origin+'/assExport/'+pad.getPadId()+'/ru" target="_blank">ru</a> \
 		</div>\
 		<div style="float:right">\
 			<a href="javascript:subChecker.check();void(0)">Refresh</a> &nbsp; \
