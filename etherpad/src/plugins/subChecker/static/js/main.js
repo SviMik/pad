@@ -190,10 +190,12 @@
 					errors.push({level : level_error, line : line, lang: lang, descr : "Две точки без предшествующих ! или ?. Вероятно, имеет место быть ошибка."});
 				if (text.match(/\s\-\s/))
 					errors.push({level : level_error, line : line, lang: lang, descr : "Минус, окружённый пробелами. Вероятно, имеет место быть ошибка."});
-				if (text.match(/\+|[^\s]-[^a-zа-яё]|\s-[^\s]|-$/i))
+				if (text.replace(/\s\-\s/g, ' ').match(/\+|-[^a-zа-яё]|[^a-zа-яё]-|^-|-$/i))
 					errors.push({level : level_error, line : line, lang: lang, descr : "Плюсы или минусы в строке."});
-				if (text.match(/[\/\\\(\)\[\]]/))
-					errors.push({level : level_error, line : line, lang: lang, descr : "Не зашитая строка или комментарии."});
+				if (text.match(/\{[^\\}][^}]*\}/) || text.replace(/\{[^}]*\}/g, ' ').match(/[\/\\\(\)\[\]]/))
+					errors.push({level : level_error, line : line, lang: lang, descr : "Строка с вариантами или комментариями."});
+				if (text.match(/\{[^}]*\\[^}]*\}/))
+					errors.push({level : level_info, line : line, lang: lang, descr : "Строка с тегами."});
 	
 				if (lang == 0) { // english subs specific errors
 	
