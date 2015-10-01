@@ -94,7 +94,9 @@ function onRequest() {
 	for(k in tmp){
 		var str=trim(tmp[k]);
 		// build subtitles
-		m=str.match(/^\[?([0-9]{2}):([0-9]{2}\.[0-9]{1,2}),([0-9\.]+)\]?[ ]*([^:]+):([^а-яА-ЯёЁ\u2192]+)(.*)/);
+		var m=str.match(/^\[?([0-9]{2}):([0-9]{2}\.[0-9]{1,2}),([0-9\.]+)\]?[ ]*([^:]+):([^\u2192]+)\u2192(.*)/);
+		if(m==null)
+			m=str.match(/^\[?([0-9]{2}):([0-9]{2}\.[0-9]{1,2}),([0-9\.]+)\]?[ ]*([^:]+):([^а-яА-ЯёЁ\u2192]+)(.*)/);
 		if(m!=null && typeof(m[5])!="undefined"){
 			var t=parseInt(m[1], 10)*60+parseFloat(m[2]);
 			var l=parseFloat(m[3]);
