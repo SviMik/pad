@@ -23,9 +23,11 @@ function onRequest() {
 		if(t<0){return t;}
 		var sec=(t%60).toFixed(frac);
 		var min=Math.floor(t/60);
+		var hour=Math.floor(min/60);
+		min-=hour*60;
 		if(sec<10){sec="0"+sec;}
 		if(min<10){min="0"+min;}
-		return min+":"+sec;
+		return hour+":"+min+":"+sec;
 	}
 
 	function getPadText(padId){
@@ -113,7 +115,7 @@ function onRequest() {
 			}
 			text=text.replace(/[\s]*\u21B2[\s]*/g, "\\N"); // newline symbol (downwards arrow with tip leftwards)
 			if(text!=""){
-				buf+="Dialogue: 0,0:"+htime(t, 2)+",0:"+htime(t+l, 2)+","+name+",,0,0,0,,"+text+"\r\n";
+				buf+="Dialogue: 0,"+htime(t, 2)+","+htime(t+l, 2)+","+name+",,0,0,0,,"+text+"\r\n";
 			}
 		}
 	}
