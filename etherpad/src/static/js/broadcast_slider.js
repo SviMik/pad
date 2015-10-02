@@ -313,10 +313,20 @@ var global = this;
         $(self).unbind('mouseup');
         $(document).unbind('mouseup');
         if($(self).attr("id") == ("leftstep")) {
-          setSliderPosition(getSliderPosition() - 1);
+          if(evt2.shiftKey) {
+            setSliderPosition(getSliderPosition() - 30);
+          }
+          else {
+            setSliderPosition(getSliderPosition() - 1);
+          }
         }
         else if($(self).attr("id") == ("rightstep")) {
-          setSliderPosition(getSliderPosition() + 1);
+          if(evt2.shiftKey) {
+            setSliderPosition(getSliderPosition() + 30);
+          }
+          else {
+            setSliderPosition(getSliderPosition() + 1);
+          }
         }
         else if($(self).attr("id") == ("leftstar")) {
           var nextStar = 0; // default to first revision in document
