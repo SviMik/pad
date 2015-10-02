@@ -92,6 +92,8 @@ function onRequest() {
 	buf+="[Events]\r\n";
 	buf+="Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\r\n";
 
+	var missing_style_map = {};
+	
 	var tmp=padText.replace(/\[[^\]]+\]/g, "").replace(/[ ]{2,}/g, ' ').split("\n");
 	for(k in tmp){
 		var str=trim(tmp[k]);
@@ -104,8 +106,7 @@ function onRequest() {
 			var l=parseFloat(m[3]);
 			var name=m[4].replace(/\s/, '');
 			if(typeof(styles[name])=="undefined"){
-				response.write("Error: Missing style for "+name+"\n\nPlease add style to \"assheader\" pad (or fix name in the \""+argv[2]+"\" pad)");
-				return true;
+				missing_style_map[name] = true;
 			}
 			var text_en=trim(m[5].replace(/\[[^\[\]]+\]/g, '').replace(/([a-zA-Z][^ ]*) [^a-zA-Z]+$/g, '$1')); // remove symbols from the end of line
 			var text_ru=trim(m[6].replace(/\[[^\[\]]+\]/g, '')).replace(/^\u2192[\s]*/, ""); // remove arrow from the start of line
@@ -118,6 +119,17 @@ function onRequest() {
 				buf+="Dialogue: 0,"+htime(t, 2)+","+htime(t+l, 2)+","+name+",,0,0,0,,"+text+"\r\n";
 			}
 		}
+	}
+
+	var missing_styles = [];
+	for(name in missing_style_map){
+		if(missing_style_map.hasOwnProperty(name)){
+			missing_styles.push(name);
+		}
+	}
+	if(missing_styles.length>0){
+		response.write("Error: Missing style for "+missing_styles.sort().join(", ")+"\n\nPlease add style to \"assheader\" pad (or fix name in the \""+argv[2]+"\" pad)");
+		return true;
 	}
 
 	/* Make this file downloadable */
