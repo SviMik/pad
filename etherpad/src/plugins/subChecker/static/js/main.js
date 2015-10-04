@@ -116,19 +116,19 @@
 		if(typeof(padeditor)=="undefined")
 			return false; // no pad - no parsing
 	
-		var tmp = padeditor.ace.getFormattedCode();
-		if(tmp==this.pad_prev_data)
+		var padHtml = padeditor.ace.getFormattedCode();
+		if(padHtml==this.pad_prev_data)
 			return true;
 		
-		this.pad_prev_data=tmp;
+		this.pad_prev_data=padHtml;
 	
-		var tmp_html = tmp.replace(/&nbsp;/g, ' ').replace(/[ ]{2,}/g, ' ').replace(/<b> /g, ' <b>').split("\n");
-		tmp = tmp.replace(/<\/?[^>]+>/gi, '').replace(/\{\\[bi][01]\}/g, ' ').replace(/&nbsp;/g, ' ').replace(/[ ]{2,}/g, ' ').replace(/<b> /g, ' <b>').split("\n");
+		var padTextLines = padeditor.ace.exportText().replace(/&nbsp;/g, ' ').replace(/\{\\[bi][01]\}/g, ' ').replace(/[ ]{2,}/g, ' ').split("\n");
+		var padHtmlLines = padHtml.replace(/&nbsp;/g, ' ').replace(/[ ]{2,}/g, ' ').replace(/<b> /g, ' <b>').split("\n");
 
 		var new_subs=[];
-		for(k in tmp){
-			var str = tmp[k];
-			var str_html = tmp_html[k];
+		for(k in padTextLines){
+			var str = padTextLines[k];
+			var str_html = padHtmlLines[k];
 			if(typeof(str) != "string"){ // Shit happens in IE
 				continue;
 			}
