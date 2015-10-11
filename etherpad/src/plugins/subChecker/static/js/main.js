@@ -127,31 +127,37 @@
 
 		var new_subs=[];
 		for(k in padTextLines){
-			var str = padTextLines[k];
-			var str_html = padHtmlLines[k];
-			if(typeof(str) != "string"){ // Shit happens in IE
+			var line = padTextLines[k];
+			var line_html = padHtmlLines[k];
+			if(typeof(line) != "string"){ // Shit happens in IE
 				continue;
 			}
-			str = str.trim();
-			if(str.search('======')==0){
+			line = line.trim();
+			if(line.search('======')==0){
 				subChecker.line_renumerator_offset=parseInt(k)+1;
 			}
 
 			// build subtitles
-			var m = str.match(/^\[?([0-9]{2}):([0-9]{2}\.[0-9]{1,2}),([0-9\.]+)\]?[ ]*([^:]+):([^а-яА-ЯёЁ\u2192]+)(.*)/);
-			if(m != null && typeof(m[5]) != "undefined"){
-				var t = parseInt(m[1], 10)*60+parseFloat(m[2]);
-				var l = parseFloat(m[3]);
-				var name = m[4].trim();
-				var text_en = m[5].replace(/\[[^\[\]]+\]/g, '').replace(/([a-zA-Z][^ ]*) [^a-zA-Z]+$/g, '$1').trim();
-				var text_ru = m[6].replace(/\[[^\[\]]+\]/g, '').trim().replace(/^\u2192[\s]*/, "");
-				if(name == "Auto" || name == "Multilang"){
-					var text = (text_en+" "+text_ru).trim();
-					text_en = text;
-					text_ru = text;
+			var lineMatch = line.match(/^\[?([0-9]{2}):([0-9]{2}\.[0-9]{1,2}),([0-9\.]+)\]?[ ]*([^:]+):(.*)$/);
+			if(lineMatch != null){
+				var time = parseInt(lineMatch[1], 10)*60+parseFloat(lineMatch[2]);
+				var duration = parseFloat(lineMatch[3]);
+				var name = lineMatch[4].trim();
+				var text = lineMatch[5];
+				var textMatch = text.match(/^([^\u2192]+)\u2192(.*)$/);
+				if(textMatch == null) {
+					textMatch = text.match(/^([^а-яА-ЯёЁ\u2192]+)(.*)$/);
 				}
-				//console.log(t, l, name, text_en, text_ru);
-				new_subs.push([parseInt(k), t, l, name, [text_en, text_ru, str_html]]);
+				text_en = textMatch[1].replace(/\[[^\[\]]+\]/g, '').trim();
+				text_ru = textMatch[2].replace(/\[[^\[\]]+\]/g, '').replace(/^\u2192/, '').trim();
+				if(text_en || text_ru) {
+					if(name == "Auto" || name == "Multilang"){
+						var text_both = (text_en+" "+text_ru).trim();
+						text_en = text_both;
+						text_ru = text_both;
+					}
+					new_subs.push([parseInt(k), time, duration, name, [text_en, text_ru, line_html]]);
+				}
 			}
 		}
 		this.subs = new_subs;
