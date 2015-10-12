@@ -26,8 +26,8 @@
 			<a href="javascript:subChecker.check();void(0)">Refresh</a> &nbsp; \
 			<a href="javascript:subChecker.hide();void(0)">Close</a><br>\
 		</div>\
-		<div style="clear:both;height:1px;overflow:hidden"></div>\
-		<div id=checker_list style="margin-top:5px">Checking...</div>\
+		<div style="clear:both;height:1px"></div>\
+		<div id=checker_list style="margin-top:5px;overflow:auto">Checking...</div>\
 		';
 		var tag=document.createElement("div");
 		tag.innerHTML=data;
@@ -35,9 +35,8 @@
 		tag.style.right="10px";
 		tag.style.top="10px";
 		tag.style.width="560px";
-		tag.style.height="230px";
 		document.body.appendChild(tag);
-		g("checker_list").style.height="200px";
+		g("checker_list").style.height="350px";
 		this.check();
 	}
 
@@ -55,7 +54,7 @@
 		var error_level=g("c_error_level") ? parseInt(g("c_error_level").value) : 0;
 		var errors = find_errors();
 		var cnt=0;
-		var res = '<table id="subs_errors">\
+		var res = '<table id="subs_errors" style="border-spacing:0px">\
 				<thead>\
 					<tr>\
 						<th width=40 align=left>Line</th>\
@@ -72,16 +71,21 @@
 		tcnt[5]=0;
 		tcnt[10]=0;
         var prevLine = -1;
+		var whiteTableRow = false;
 		for (i in errors) {
 			tcnt[errors[i].level]++;
 			if (errors[i].level == error_level || error_level==0) {
-				var line=errors[i].line+1-subChecker.line_renumerator_offset;
-                var lineHtml = line==prevLine ? '' : '<a href="javascript:subChecker.go_to_line('+line+');void(0)">'+line+'</a>';
-				res += '<tr>\
-					<td>'+lineHtml+'</td>\
-					<td>'+(errors[i].level>5 ? "Error" : errors[i].level>2 ? "Warn" : "Info")+'</td>\
-					<td>'+(errors[i].lang==0 ? "EN" : "RU")+'</td>\
-					<td>' + errors[i].descr + '</td></tr>';
+				var line = errors[i].line+1-subChecker.line_renumerator_offset;
+				var lineHtml = '';
+				if (line!=prevLine) {
+					whiteTableRow = !whiteTableRow;
+					lineHtml = '<a href="javascript:subChecker.go_to_line('+line+');void(0)">'+line+'</a>';
+				}
+				res += '<tr style="background-color:'+(whiteTableRow?'white':'#e8e8e8')+'">\
+					<td style="padding:1px">'+lineHtml+'</td>\
+					<td style="padding:1px">'+(errors[i].level>5 ? "Error" : errors[i].level>2 ? "Warn" : "Info")+'</td>\
+					<td style="padding:1px">'+(errors[i].lang==0 ? "EN" : errors[i].lang==1 ? "RU" : "*")+'</td>\
+					<td style="padding:1px">' + errors[i].descr + '</td></tr>';
                 prevLine = line;
 				cnt++;
 			}
