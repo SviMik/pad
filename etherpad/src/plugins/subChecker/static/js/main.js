@@ -164,6 +164,15 @@
 		return true;
 	}
 
+	function highlightSuspiciousSymbols(text, pattern) {
+		var hasMatch = false;
+		var highlighted = '<span style="color:#999999">' + text.replace(pattern, function(match) {
+			hasMatch = true;
+			return '<span style="color:tomato;font-weight:bold;">' + match + '</span>';
+		}) + '</span>';
+		return hasMatch ? highlighted : null;
+	}
+	
 	function find_errors() {
 		errors = [];
 		var level_error = 10;
@@ -202,19 +211,30 @@
 					errors.push({level : level_error, line : line, lang: lang, descr : "Строка с вариантами или комментариями."});
 				if (text.match(/\{[^}]*\\[^}]*\}/))
 					errors.push({level : level_info, line : line, lang: lang, descr : "Строка с тегами."});
-	
-				if (lang == 0) { // english subs specific errors
-	
+
+				var textWithoutTagsAndComments = text.replace(/\[[^\]]*\]/g, ' ').replace(/\{[^}]*\}/g, ' ').replace(/  +/g, ' ');
+
+				if (name == "Auto") {
+					var textWithHighlightedSymbols = highlightSuspiciousSymbols(textWithoutTagsAndComments, /[^А-Яа-яЁё«»A-Za-z'.,!?:;…"\u21B2 \/\\\(\)+—–-]+/g);
+					if (textWithHighlightedSymbols) {
+						errors.push({level : level_maybe_error, line : line, lang: lang, descr : "Подозрительные символы в субтитрах: " + textWithHighlightedSymbols});
+					}
+				} else if (lang == 0) { // english subs specific errors
+					var textWithHighlightedSymbols = highlightSuspiciousSymbols(textWithoutTagsAndComments, /[^A-Za-z'.,!?:;…"\u21B2 \/\\\(\)+—–-]+/g);
+					if (textWithHighlightedSymbols) {
+						errors.push({level : level_maybe_error, line : line, lang: lang, descr : "Подозрительные символы в английских субтитрах: " + textWithHighlightedSymbols});
+					}
 				} else { // russian subs specific errors
-					if (text.match(/[^\.\?,!…—:]$/) && name!="Auto")
+					var textWithHighlightedSymbols = highlightSuspiciousSymbols(textWithoutTagsAndComments, /[^А-Яа-яЁё.,!?:;…"«»\u21B2 \/\\()+—–-]+/g);
+					if (textWithHighlightedSymbols) {
+						errors.push({level : level_maybe_error, line : line, lang: lang, descr : "Подозрительные символы в русских субтитрах: " + textWithHighlightedSymbols});
+					}
+					if (textWithoutTagsAndComments.replace(/[+-]+$/g, '').match(/[^\.\?,!…—:]$/) && name!="Auto")
 						errors.push({level : level_maybe_error, line : line, lang: lang, descr : "Строка не заканчивается знаком препинания."});
-					if (text.match(/a-zA-Z/))
-						errors.push({level : level_error, line : line, lang: lang, descr : "Латиница в русских субтитрах."});
 				}
-				// TODO: unknown symbols
 			}
 			if(t_prev_end-t>0.006){
-				errors.push({level : level_error, line : line, lang: 0, descr : "Наложение реплик в тайминге на "+(t_prev_end-t).toFixed(2)+"с"});
+				errors.push({level : level_error, line : line, lang: 2, descr : "Наложение реплик в тайминге на "+(t_prev_end-t).toFixed(2)+"с"});
 			}
 			t_prev_end=t+l;
 		}
