@@ -120,8 +120,10 @@ var pad = {
     pad.collabClient.setOnChannelStateChange(pad.handleChannelStateChange);
     pad.collabClient.setOnInternalAction(pad.handleCollabAction);
 
+    plugins.callHook("padCollabClientInitialized", {pad: pad});
     function postAceInit() {
       padeditbar.init();
+      plugins.callHook("padEditorInitialized", {pad: pad});
       setTimeout(function() { padeditor.ace.focus(); }, 0);
     }
   },
