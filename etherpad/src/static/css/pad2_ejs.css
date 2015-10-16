@@ -517,9 +517,9 @@ table#otheruserstable { display: none; }
 }
 
 .usertdswatch { width: 1%; }
-.usertdname { font-size: 1.3em; color: #444; }
+.usertdname { font-size: 1.3em; color: #444; width: 100% }
 .usertdstatus { font-size: 1.1em; font-style: italic; color: #999; }
-.usertdactivity { font-size: 1.1em; color: #777; }
+#otheruserstable td.usertdactivity { font-size: 1.2em; color: #777; white-space: nowrap; padding-right: 5px; padding-left: 5px; }
 
 .usertdname input { border: 1px solid #bbb; width: 80px; padding: 2px; }
 .usertdname input.editactive, .usertdname input.editempty {

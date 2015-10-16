@@ -93,7 +93,7 @@ var paduserlist = (function() {
       return ['<td style="height:',height,'px" class="usertdswatch"><div class="swatch" style="background:'+data.color+'">&nbsp;</div></td>',
               '<td style="height:',height,'px" class="usertdname">',nameHtml,'</td>',
               '<td style="height:',height,'px" class="usertdstatus">',padutils.escapeHtml(data.status),'</td>',
-              '<td style="height:',height,'px" class="activity">',padutils.escapeHtml(data.activity),'</td>'].join('');
+              '<td style="height:',height,'px" class="usertdactivity">',data.activity,'</td>'].join('');
     }
     function getRowHtml(id, innerHtml) {
       return '<tr id="'+id+'">'+innerHtml+'</tr>';
@@ -458,6 +458,17 @@ var paduserlist = (function() {
 
       renderMyUserInfo();
     },
+    userUpdate: function(userId) {
+      if (!userId) {
+        return;
+      }
+      var existingIndex = findExistingIndex(userId);
+      if (existingIndex < 0) {
+        return;
+      }
+      var info = otherUsersInfo[existingIndex];
+      return this.userJoinOrUpdate(info);
+    },
     userJoinOrUpdate: function(info) {
       if ((! info.userId) || (info.userId == myUserInfo.userId)) {
         // not sure how this would happen
@@ -472,6 +483,7 @@ var paduserlist = (function() {
       userData.id = info.userId;
       // Firefox ignores \n in title text; Safari does a linebreak
       userData.titleText = [info.userAgent||'', info.ip||''].join(' \n');
+      plugins.callHook('userListData', {userData: userData});
 
       var existingIndex = findExistingIndex(info.userId);
 
