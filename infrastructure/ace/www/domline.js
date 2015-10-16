@@ -63,6 +63,7 @@ domline.createDomLine = function(nonEmpty, doesWrap, optBrowser, optDocument) {
   var preHtml, postHtml;
   var curHTML = null;
   function processSpaces(s) {
+    s = s.replace(/[\r\u200B\u2028\u2029]/g, ' ');
     return domline.processSpaces(s, doesWrap);
   }
   var identity = domline.identity;
