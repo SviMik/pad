@@ -249,7 +249,7 @@ var padchat = (function(){
       box.scrollTop = 0;
     },
     loadMoreHistory: function() {
-      if (loadingMoreHistory) {
+      if (loadingMoreHistory || oldestHistoricalLine <= 0) {
         return;
       }
 

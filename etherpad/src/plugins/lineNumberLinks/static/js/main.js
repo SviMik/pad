@@ -117,9 +117,13 @@ function lineNumberLinksInit() {
     }
     
     function chatLineText(args) {
+        var tagIntervals = [];
         var tagPattern = /<a [^>]*>[^<]*<\/a>/gi;
         var tagMatch;
-        var tagIntervals = [];
+        while ((tagMatch = tagPattern.exec(args.html)) !== null) {
+            tagIntervals.push({start: tagMatch.index, end: tagMatch.index+tagMatch[0].length});
+        }
+        var tagPattern = /<[^>]*>/gi;
         while ((tagMatch = tagPattern.exec(args.html)) !== null) {
             tagIntervals.push({start: tagMatch.index, end: tagMatch.index+tagMatch[0].length});
         }
