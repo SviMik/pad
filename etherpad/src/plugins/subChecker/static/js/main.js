@@ -36,7 +36,7 @@
 		tag.style.top="10px";
 		tag.style.width="560px";
 		document.body.appendChild(tag);
-		g("checker_list").style.height="350px";
+		g("checker_list").style.height="300px";
 		this.check();
 	}
 
@@ -70,7 +70,7 @@
 		tcnt[2]=0;
 		tcnt[5]=0;
 		tcnt[10]=0;
-        var prevLine = -1;
+		var prevLine = -1;
 		var whiteTableRow = false;
 		for (i in errors) {
 			tcnt[errors[i].level]++;
@@ -86,7 +86,7 @@
 					<td style="padding:1px">'+(errors[i].level>5 ? "Error" : errors[i].level>2 ? "Warn" : "Info")+'</td>\
 					<td style="padding:1px">'+(errors[i].lang==0 ? "EN" : errors[i].lang==1 ? "RU" : "*")+'</td>\
 					<td style="padding:1px">' + errors[i].descr + '</td></tr>';
-                prevLine = line;
+				prevLine = line;
 				cnt++;
 			}
 			tcnt[0]++;
@@ -204,7 +204,7 @@
 				}
 	
 				if (text.match(/\.\.\./))
-					errors.push({level : level_error, line : line, lang: lang, descr : "Неверное троеточие. Стоит заменить на это: …"});
+					errors.push({level : level_info, line : line, lang: lang, descr : "Неверное троеточие. Стоит заменить на это: …"});
 				if (text.match(/[^\!\?\.]\.\.([^\.]|$)/))
 					errors.push({level : level_error, line : line, lang: lang, descr : "Две точки без предшествующих ! или ?. Вероятно, имеет место быть ошибка."});
 				if (text.match(/\s\-\s/))
@@ -234,7 +234,7 @@
 						errors.push({level : level_maybe_error, line : line, lang: lang, descr : "Подозрительные символы в русских субтитрах: " + textWithHighlightedSymbols});
 					}
 					if (textWithoutTagsAndComments.replace(/[+-]+$/g, '').match(/[^\.\?,!…—:]$/) && name!="Auto")
-						errors.push({level : level_maybe_error, line : line, lang: lang, descr : "Строка не заканчивается знаком препинания."});
+						errors.push({level : level_info, line : line, lang: lang, descr : "Строка не заканчивается знаком препинания."});
 				}
 			}
 			if(t_prev_end-t>0.006){
