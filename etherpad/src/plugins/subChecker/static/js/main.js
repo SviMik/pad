@@ -219,17 +219,17 @@
 				var textWithoutTagsAndComments = text.replace(/\[[^\]]*\]/g, ' ').replace(/\{[^}]*\}/g, ' ').replace(/  +/g, ' ');
 
 				if (name == "Auto") {
-					var textWithHighlightedSymbols = highlightSuspiciousSymbols(textWithoutTagsAndComments, /[^А-Яа-яЁё«»A-Za-z'.,!?:;…"\u21B2 \/\\\(\)+—–-]+/g);
+					var textWithHighlightedSymbols = highlightSuspiciousSymbols(textWithoutTagsAndComments, /[^А-Яа-яЁё«»A-Za-z'.,!?:;…"\u21B2\n \/\\\(\)+—–-]+/g);
 					if (textWithHighlightedSymbols) {
 						errors.push({level : level_maybe_error, line : line, lang: lang, descr : "Подозрительные символы в субтитрах: " + textWithHighlightedSymbols});
 					}
 				} else if (lang == 0) { // english subs specific errors
-					var textWithHighlightedSymbols = highlightSuspiciousSymbols(textWithoutTagsAndComments, /[^A-Za-z'.,!?:;…"\u21B2 \/\\\(\)+—–-]+/g);
+					var textWithHighlightedSymbols = highlightSuspiciousSymbols(textWithoutTagsAndComments, /[^A-Za-z'.,!?:;…"\u21B2\n \/\\\(\)+—–-]+/g);
 					if (textWithHighlightedSymbols) {
 						errors.push({level : level_maybe_error, line : line, lang: lang, descr : "Подозрительные символы в английских субтитрах: " + textWithHighlightedSymbols});
 					}
 				} else { // russian subs specific errors
-					var textWithHighlightedSymbols = highlightSuspiciousSymbols(textWithoutTagsAndComments, /[^А-Яа-яЁё.,!?:;…"«»\u21B2 \/\\()+—–-]+/g);
+					var textWithHighlightedSymbols = highlightSuspiciousSymbols(textWithoutTagsAndComments, /[^А-Яа-яЁё.,!?:;…"«»\u21B2\n \/\\()+—–-]+/g);
 					if (textWithHighlightedSymbols) {
 						errors.push({level : level_maybe_error, line : line, lang: lang, descr : "Подозрительные символы в русских субтитрах: " + textWithHighlightedSymbols});
 					}
