@@ -4,7 +4,7 @@ import("plugins.desktopNotifications.static.js.main");
 function desktopNotificationsInit() {
     this.hooks = [];
     this.description = 'Show a desktop notification when a chat message is received';
-    this.client = new main.desktopNotificationsPluginInit();
+    this.client = new main.desktopNotificationsInit();
     this.install = install;
     this.uninstall = uninstall;
 }

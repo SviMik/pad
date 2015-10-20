@@ -1,17 +1,9 @@
-function desktopNotificationsPluginInit() {
-    this.hooks = [];
-    this.version = '0.7';
+function desktopNotificationsInit() {
+    this.hooks = ['padCollabClientInitialized'];
+    this.padCollabClientInitialized = padCollabClientInitialized;
+    this.version = '0.8';
 
-    if(isBrowser()) {
-        window.addEventListener('load', executeScript, false);
-    }
-
-    function isBrowser() {
-        var global = (function() {return this;})();
-        return !!global.window;
-    }
-
-    function executeScript() {
+    function padCollabClientInitialized() {
         if(!window.padchat || !window.$ || !$('#padpage #padmain').length)
             return;
         var isChrome = navigator.userAgent.toLowerCase().indexOf('chrome')>=0;
@@ -209,4 +201,4 @@ function desktopNotificationsPluginInit() {
     }
 }
 
-desktopNotificationsPlugin = new desktopNotificationsPluginInit();
+desktopNotifications = new desktopNotificationsInit();
