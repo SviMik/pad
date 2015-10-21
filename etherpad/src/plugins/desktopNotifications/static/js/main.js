@@ -96,7 +96,12 @@ function desktopNotificationsInit() {
                 if(isSafari)
                     textLines.reverse();
                 var title = window.paddocbar.title+' – '+padChatNotificationSenders.length+' new message'+(padChatNotificationSenders.length>1?'s':'');
-                showNotification('http://'+window.location.host+'/favicon.ico', title, textLines);
+                try {
+                    showNotification('http://'+window.location.host+'/favicon.ico', title, textLines);
+                }
+                catch(e) {
+                    console.log("Exception in desktopNotifications", e);
+                }
                 if(notificationsSoundOn && notificationsSoundSource) {
                     if(!audio) {
                         audio = document.createElement('audio');
@@ -160,8 +165,11 @@ function desktopNotificationsInit() {
                     notificationsOn = !notificationsOn;
                 }
                 else {
-                    notificationsOn = true;
-                    notifications.requestPermission(updateNotificationsCaption);
+                    notifications.requestPermission(function() {
+                        notificationsOn = isPermissionGranted();
+                        window.localStorage.setItem('NotificationsOn', notificationsOn);
+                        updateNotificationsCaption();
+                    });
                 }
                 window.localStorage.setItem('NotificationsOn', notificationsOn);
             }
