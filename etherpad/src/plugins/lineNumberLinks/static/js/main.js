@@ -11,7 +11,7 @@ function lineNumberLinksInit() {
     var arrowDiv = null;
     var highlightDiv = null;
     
-    function goToLine(lineNumberStr) {
+    function goToLine(lineNumberStr, moveCursor) {
         var lineIndex;
         if (window.lineRenumeratorPlugin) {
             if (lineNumberStr[0] == 'A') {
@@ -32,7 +32,16 @@ function lineNumberLinksInit() {
         if (lineDiv.length > 0) {
             var scrollingElements = outerFrame.contents().find('html,body');
             scrollingElements.scrollTop(innerFrame.offset().top + lineDiv.offset().top + lineDiv.height()/2 - outerFrame.height()/2);
-            var scrollTop = Math.max(scrollingElements.eq(0).scrollTop(), scrollingElements.eq(1).scrollTop());
+            
+            if (moveCursor == true) {
+                var range = innerFrame.contents()[0].createRange();
+                range.setStartBefore(lineDiv[0]);
+                range.collapse(true);
+                var selection = innerFrame.contents()[0].getSelection();
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
+            
             if (!highlightDiv) {
                 highlightDiv = $('<div id="linenumberlinkshighlight"/>').css({
                     display: 'none',
@@ -68,14 +77,14 @@ function lineNumberLinksInit() {
         }
     }
 
-    function onLinkClick(event, lineNumber) {
+    function onLinkClick(event, lineNumber, moveCursor) {
         if (event && event.preventDefault) {
             event.preventDefault();
         }
         if (event && event.stopPropagation) {
             event.stopPropagation();
         }
-        goToLine(lineNumber);
+        goToLine(lineNumber, moveCursor);
     }
 
     /*function aceInitInnerdocbodyHead(args) {
