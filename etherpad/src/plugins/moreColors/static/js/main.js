@@ -1,17 +1,9 @@
 function moreColorsInit() {
-    this.hooks = [];
-    this.version = '0.2';
+    this.hooks = ['padCollabClientInitialized'];
+    this.padCollabClientInitialized = padCollabClientInitialized;
+    this.version = '0.3';
 
-    if(isBrowser()) {
-        window.addEventListener('load', executeScript, false);
-    }
-
-    function isBrowser() {
-        var global = (function() {return this;})();
-        return !!global.window;
-    }
-
-    function executeScript() {
+    function padCollabClientInitialized() {
         //generate&add colors
         var arr1 = ['00','33','66','99','CC','FF'];
         var arr = [];
