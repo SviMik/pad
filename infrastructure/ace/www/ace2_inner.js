@@ -3015,6 +3015,11 @@ function OUTER(gscope) {
   function handleKeyEvent(evt) {
     if (DEBUG && top.DONT_INCORP) return;
 
+    var beforeHandleKeyEventResult = parent.parent.plugins.callHook("beforeHandleKeyEventInEditor", {evt: evt, isEditable: isEditable});
+    if (beforeHandleKeyEventResult.indexOf('stop') != -1) {
+        return;
+    }
+
     if (! isEditable) return;
 
     var type = evt.type;
@@ -3205,6 +3210,11 @@ function OUTER(gscope) {
 	thisKeyDoesntTriggerNormalize = false;
       }
     });
+    parent.parent.plugins.callHook("afterHandleKeyEventInEditor", {
+                evt: evt, 
+                isEditable: isEditable, 
+                stopped: stopped,
+                specialHandled: specialHandled});
   }
 
   var thisKeyDoesntTriggerNormalize = false;
