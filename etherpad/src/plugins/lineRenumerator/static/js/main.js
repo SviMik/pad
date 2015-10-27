@@ -1,16 +1,8 @@
 function lineRenumeratorPluginInit() {
-    this.hooks = [];
-    this.version = '0.1';
+    this.hooks = ['padEditorInitialized'];
+    this.version = '0.2';
     this.getLinesOffset = getLinesOffset;
-
-    if(isBrowser()) {
-        window.addEventListener('load', executeScript, false);
-    }
-
-    function isBrowser() {
-        var global = (function() {return this;})();
-        return !!global.window;
-    }
+    this.padEditorInitialized = padEditorInitialized;
 
     function getLinesOffset() {
         var text =  window.padeditor.ace.exportText();
@@ -24,7 +16,7 @@ function lineRenumeratorPluginInit() {
         return 0;
     }
 
-    function executeScript() {
+    function padEditorInitialized() {
         if (!window.$ || !(window.padeditor && window.padeditor.ace))
             return;
 
@@ -32,16 +24,11 @@ function lineRenumeratorPluginInit() {
         var lastLineNumberDivCount = -1;
         var start = 0;
         
-        var isAceInitialized = false;
-        padeditor.ace.callWithAce(function() {
-            isAceInitialized = true;
-        });
-
         setInterval(function() {
             var text =  window.padeditor.ace.exportText();
-            var numbers = $('#editorcontainer iframe').contents().find('div#sidediv table tbody tr td').contents();
+            var numbers = $('#editorcontainer iframe').contents().find('div#sidediv table tbody tr td#sidedivinner').contents();
             
-            if (!isAceInitialized || typeof(text) == "undefined" || numbers.length == 0)
+            if (typeof(text) == "undefined" || numbers.length == 0)
                 return;
 
             var lines = text.split('\n');
