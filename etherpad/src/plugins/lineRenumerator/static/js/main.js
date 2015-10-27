@@ -63,4 +63,4 @@ function lineRenumeratorPluginInit() {
 }
 
 
-lineRenumeratorPlugin = new lineRenumeratorPluginInit();
+lineRenumerator = new lineRenumeratorPluginInit();

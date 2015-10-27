@@ -131,4 +131,4 @@ function keyBindingsPluginInit() {
     }
 }
 
-keyBindingsPlugin = new keyBindingsPluginInit();
+keyBindings = new keyBindingsPluginInit();

@@ -88,4 +88,4 @@ function restoreAnyRevisionPluginInit() {
 }
 
 
-restoreAnyRevisionPlugin = new restoreAnyRevisionPluginInit();
+restoreAnyRevision = new restoreAnyRevisionPluginInit();
