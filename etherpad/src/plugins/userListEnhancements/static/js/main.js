@@ -62,12 +62,12 @@ function userListEnhancementsInit() {
                     else {
                         lineNumber = 0;
                     }
-                    if (window.lineRenumeratorPlugin) {
-                        if (lineNumber < lineRenumeratorPlugin.getLinesOffset()) {
+                    if (window.lineRenumerator) {
+                        if (lineNumber < lineRenumerator.getLinesOffset()) {
                             lineNumber = 'A' + (lineNumber + 1);
                         }
                         else {
-                            lineNumber = parseInt(lineNumber) - lineRenumeratorPlugin.getLinesOffset() + 1;
+                            lineNumber = parseInt(lineNumber) - lineRenumerator.getLinesOffset() + 1;
                         }
                     }
                     lineEditingActivities.update(author, lineNumber);
