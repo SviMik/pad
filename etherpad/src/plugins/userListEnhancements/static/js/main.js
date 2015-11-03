@@ -3,7 +3,6 @@ function userListEnhancementsInit() {
     var activityDelay = 5000;
     
     function LineEditingActivities() {
-        //var activitiesToUpdate = {};
         var authorToLineNumber = {};
         var authorToLastUpdate = {};
 
@@ -18,7 +17,6 @@ function userListEnhancementsInit() {
                     authorToLastUpdate[author] = Date.now();
                 }
                 top.paduserlist.userUpdate(author);
-                console.log('userListEnhancements', lineNumber);
             },
             getLineNumber: function(author) {
                 return authorToLineNumber[author];
