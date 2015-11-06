@@ -2,6 +2,28 @@ function chatEnhancementsInit() {
     this.hooks = ['chatLineText', 'padCollabClientInitialized'];
     this.chatLineText = chatLineText;
     this.padCollabClientInitialized = padCollabClientInitialized;
+    this.getOption = getOption;
+    this.setOption = setOption;
+    
+    var options = {};
+    
+    function getOption(name) {
+        if (!options.hasOwnProperty(name)) {
+            var storageValue = localStorage.getItem(name);
+            options[name] = storageValue === null ? null : JSON.parse(storageValue);
+        }
+        return options[name];
+    }
+
+    function setOption(name, value) {
+        options[name] = value;
+        if (value === null) {
+            localStorage.removeItem(name);
+        }
+        else {
+            localStorage.setItem(name, JSON.stringify(value));
+        }
+    }
 
     function findQuotationStart(html) {
         var tagIntervals = [];
@@ -38,9 +60,10 @@ function chatEnhancementsInit() {
     function padCollabClientInitialized() {
         var chatDiv = $('#chatlines');
         chatDiv.scroll(function() {
-            console.log(chatDiv.scrollTop());
-            if(chatDiv.scrollTop() < 25) {
-                padchat.loadMoreHistory();
+            if (getOption('AutoLoadMessagesOnScroll')==true) {
+                if(chatDiv.scrollTop() < 25) {
+                    padchat.loadMoreHistory();
+                }
             }
         });
     }
