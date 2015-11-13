@@ -8,6 +8,8 @@ function lineNumberLinksInit() {
     this.beforeHandleKeyEventInEditor = beforeHandleKeyEventInEditor;
     this.padCollabClientInitialized = padCollabClientInitialized;
     this.onLinkClick = onLinkClick;
+    this.jumpBackward = jumpBackward;
+    this.jumpForward = jumpForward;
    
     function LinePlacement(lineNumberStrOrPlacement, lineCenterTop) {
         if (typeof lineNumberStrOrPlacement == 'object') {
@@ -29,27 +31,27 @@ function lineNumberLinksInit() {
             placements.splice(placementIndex, placements.length, new LinePlacement(placement));
         }
         
-        this.jumpBack = function() {
-            if (!this.canJumpBack()) {
+        this.jumpBackward = function() {
+            if (!this.canJumpBackward()) {
                 return null;
             }
             --placementIndex;
             return new LinePlacement(placements[placementIndex]);
         }
         
-        this.jumpForth = function() {
-            if (!this.canJumpForth()) {
+        this.jumpForward = function() {
+            if (!this.canJumpForward()) {
                 return null;
             }
             ++placementIndex;
             return new LinePlacement(placements[placementIndex]);
         }
         
-        this.canJumpBack = function() {
+        this.canJumpBackward = function() {
             return placementIndex > 0;
         }
         
-        this.canJumpForth = function() {
+        this.canJumpForward = function() {
             return placementIndex < placements.length - 1;
         }
         
@@ -132,7 +134,7 @@ function lineNumberLinksInit() {
         var currentPlacement = getCurrentPlacement();
         var lastPlacement = backAndForthStack.get();
         if (currentPlacement.lineNumberStr != placement.lineNumberStr && 
-                (!lastPlacement && lineNumberStringToLineIndex(currentPlacement.lineNumberStr) > 0 || 
+                (!lastPlacement /*&& lineNumberStringToLineIndex(currentPlacement.lineNumberStr) > 0*/ || 
                 lastPlacement && lastPlacement.lineNumberStr != currentPlacement.lineNumberStr)) {
             backAndForthStack.add(currentPlacement);
         }
@@ -142,16 +144,17 @@ function lineNumberLinksInit() {
         if (!lastPlacement || lastPlacement.lineNumberStr != currentPlacement.lineNumberStr) {
             backAndForthStack.add(currentPlacement);
         }
+        updateButtons();
     }
     
-    function jumpBack() {
+    function jumpBackward() {
         var currentPlacement = getCurrentPlacement();
         var lastPlacement = backAndForthStack.get();
         if (lastPlacement && lastPlacement.lineNumberStr != currentPlacement.lineNumberStr) {
             backAndForthStack.add(currentPlacement);
         }
-        if (backAndForthStack.canJumpBack()) {
-            var placement = backAndForthStack.jumpBack();
+        if (backAndForthStack.canJumpBackward()) {
+            var placement = backAndForthStack.jumpBackward();
             goToLine(placement.lineNumberStr, placement.lineCenterTop);
         }
         else {
@@ -160,11 +163,12 @@ function lineNumberLinksInit() {
                 goToLine(placement.lineNumberStr, placement.lineCenterTop);
             }
         }
+        updateButtons();
     }
     
-    function jumpForth() {
-        if (backAndForthStack.canJumpForth()) {
-            var placement = backAndForthStack.jumpForth();
+    function jumpForward() {
+        if (backAndForthStack.canJumpForward()) {
+            var placement = backAndForthStack.jumpForward();
             goToLine(placement.lineNumberStr, placement.lineCenterTop);
         }
         else {
@@ -173,6 +177,7 @@ function lineNumberLinksInit() {
                 goToLine(placement.lineNumberStr, placement.lineCenterTop);
             }
         }
+        updateButtons();
     }
     
     function goToLine(lineNumberStr, lineCenterTop) {
@@ -340,15 +345,22 @@ function lineNumberLinksInit() {
     function onKeyDown(evt) {
         if (evt && evt.type == 'keydown') {
             if (evt.ctrlKey && evt.which == 188) {
-                jumpBack();
+                jumpBackward();
                 return true;
             }
             else if (evt.ctrlKey && evt.which == 190) {
-                jumpForth();
+                jumpForward();
                 return true;
             }
         }
         return false;
+    }
+    
+    function updateButtons() {
+        var srcBackward =  backAndForthStack.canJumpBackward() ? 'button_jump_backward.png' : 'button_jump_backward_inactive.png';
+        var srcForward =  backAndForthStack.canJumpForward() ? 'button_jump_forward.png' : 'button_jump_forward_inactive.png';
+        $('#linenumberlinks-jump-backward img').attr('src', '/static/html/plugins/lineNumberLinks/' + srcBackward);
+        $('#linenumberlinks-jump-forward img').attr('src', '/static/html/plugins/lineNumberLinks/' + srcForward);
     }
     
     function beforeHandleKeyEventInEditor(args) {
