@@ -70,59 +70,34 @@ function keyBindingsPluginInit() {
     
     function beforeHandleKeyEventInEditor(args) {
         var evt = args.evt;
-        setTimeout(function() {
-            // if(evt.ctrlKey && String.fromCharCode (evt.which).toLowerCase() == "j") {
-            //     var iframe = $("iframe").contents().find('body#outerdocbody iframe')[0];
-            //     var children = $("iframe").contents().find('body#outerdocbody iframe').contents().find('body')[0].children;
+        if(evt.type == 'keydown' && evt.ctrlKey && evt.shiftKey && (evt.keyCode || evt.which) == 'M'.charCodeAt(0)) {
+            var iframe = $("iframe").contents().find('body#outerdocbody iframe')[0];
+            var children = $("iframe").contents().find('body#outerdocbody iframe').contents().find('body')[0].children;
 
-            //     var sel = keyBindings.rangy.getSelection(iframe);
-            //     for (var i = 0; i < children.length; i++)
-            //         if (sel.containsNode(children[i], true /*partial*/)) {
-            //             var t = children[i].textContent.indexOf(':');
+            var sel = keyBindings.rangy.getSelection(iframe);
+            for (var i = 0; i < children.length; i++) {
+                if (sel.containsNode(children[i], true /*partial*/)) {
+                    var t = children[i].textContent.indexOf('→');
+                    if (t > -1) {
+                        while (children[i].textContent[t + 1] == ' ' || children[i].textContent[t + 1] == ' ' /*nbsp*/)
+                            t++;
 
-            //             if (t > -1 && t <= 30 && (children[i].textContent.substr(0, t).match(/ /g) || []).length <= 2) {
-            //                 var spans = children[i].childNodes;
-            //                 var needBold = false;
-            //                 var boldSymbols = children[i].textContent.search( /[a-zA-Z]/ );
-            //                 var spanN = 0;
-            //                 while (boldSymbols <= t) {
-            //                     if (spans[spanN].className.split(" ").indexOf("b") < 0) {
-            //                         needBold = true;
-            //                         break;
-            //                     }
-            //                     boldSymbols += spans[spanN].textContent.length;
-            //                     spanN++;
-            //                 }
-
-            //                 setSelection(children[i], {start: children[i].textContent.search( /[a-zA-Z]/ ), end: t+1});
-            //                 if (needBold)
-            //                     pad.editbarClick('bold');
-            //             }
-            //         }
-            // }
-            // else 
-            if(evt.ctrlKey && evt.shiftKey && String.fromCharCode (evt.which).toLowerCase() == "m") {
-                var iframe = $("iframe").contents().find('body#outerdocbody iframe')[0];
-                var children = $("iframe").contents().find('body#outerdocbody iframe').contents().find('body')[0].children;
-
-                var sel = keyBindings.rangy.getSelection(iframe);
-                for (var i = 0; i < children.length; i++) {
-                    if (sel.containsNode(children[i], true /*partial*/)) {
-                        var t = children[i].textContent.indexOf('→');
-                        if (t > -1) {
-                            while (children[i].textContent[t + 1] == ' ' || children[i].textContent[t + 1] == ' ' /*nbsp*/)
-                                t++;
-
-                            setSelection(children[i], {start: 0, end: t+1});
-
+                        setSelection(children[i], {start: 0, end: t+1});
+                        setTimeout(function() {
                             pad.editbarClick('clearauthorship');
-                        }
+                            console.log('clearauthorship');
+                        }, 0);
                     }
                 }
             }
-            else if(evt.ctrlKey && String.fromCharCode (evt.which).toLowerCase() == "m")
+        }
+        else if(evt.type == 'keydown' && evt.ctrlKey && (evt.keyCode || evt.which) == 'M'.charCodeAt(0)) {
+            setTimeout(function() {
                 pad.editbarClick('clearauthorship');
-        }, 0);
+                console.log('clearauthorship');
+            }, 0);
+        }
+
     }
 }
 
