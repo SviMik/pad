@@ -5,12 +5,31 @@ function chatEnhancementsInit() {
     this.getOption = getOption;
     this.setOption = setOption;
     
+    var defaultOptions = {
+        AutoLoadMessagesOnScroll: false,
+        HighlightQuotations: true,
+        AutoResizeEntryBox: true
+    };
     var options = {};
+    
+    var defaultChatEntryBoxHeight = 16;
+    var lastChatEntryBoxText = '';
+    var lastChatEntryBoxWidth = -1;
     
     function getOption(name) {
         if (!options.hasOwnProperty(name)) {
-            var storageValue = localStorage.getItem(name);
-            options[name] = storageValue === null ? null : JSON.parse(storageValue);
+            var storageValue = localStorage.getItem('chatEnhancements_' + name);
+            if (storageValue === null) {
+                if (defaultOptions.hasOwnProperty(name)) {
+                    options[name] = defaultOptions[name];
+                }
+                else {
+                    options[name] = null;
+                }
+            }
+            else {
+                options[name] = JSON.parse(storageValue);
+            }
         }
         return options[name];
     }
@@ -18,10 +37,10 @@ function chatEnhancementsInit() {
     function setOption(name, value) {
         options[name] = value;
         if (value === null) {
-            localStorage.removeItem(name);
+            localStorage.removeItem('chatEnhancements_' + name);
         }
         else {
-            localStorage.setItem(name, JSON.stringify(value));
+            localStorage.setItem('chatEnhancements_' + name, JSON.stringify(value));
         }
     }
 
@@ -50,14 +69,42 @@ function chatEnhancementsInit() {
         return -1;
     }
     
+    function adjustChatEntryBox() {
+        var chatEntryBox = $('#chatentrybox');
+        var chatLines = $('#chatlines');
+        var scrollBottom = chatLines.height() + chatLines.scrollTop();
+        var heightChanged = false;
+        if (chatEntryBox.val().indexOf(lastChatEntryBoxText) == -1 || lastChatEntryBoxWidth != chatEntryBox.width()) {
+            chatEntryBox.height(defaultChatEntryBoxHeight + 'px');
+            heightChanged = true;
+        }
+        if (chatEntryBox.innerHeight() < chatEntryBox[0].scrollHeight) {
+            var height = chatEntryBox[0].scrollHeight + chatEntryBox.height() - chatEntryBox.innerHeight();
+            height = Math.max(Math.min(height, $('#padchat').height()-32), defaultChatEntryBoxHeight);
+            chatEntryBox.height(height + 'px');
+            heightChanged = true;
+        }
+        if (heightChanged) {
+            chatLines.css('bottom', $('#chatbottom').outerHeight() + 'px');
+            chatLines.scrollTop(scrollBottom - chatLines.height());
+        }
+        lastChatEntryBoxText = chatEntryBox.val();
+        lastChatEntryBoxWidth = chatEntryBox.width();
+    }
+    
     function chatLineText(args) {
-        var position = findQuotationStart(args.html);
-        if (position>=0) {
-            args.html = args.html.substring(0, position) + '<span style="font-style:italic;color:#196906;">' + args.html.substring(position) + '</span>';
+        if (getOption('HighlightQuotations')==true) {
+            var position = findQuotationStart(args.html);
+            if (position>=0) {
+                args.html = args.html.substring(0, position) + '<span style="font-style:italic;color:#196906;">' + args.html.substring(position) + '</span>';
+            }
         }
     }
     
     function padCollabClientInitialized() {
+        if ($('#padchat').length == 0) {
+            return;
+        }
         var chatDiv = $('#chatlines');
         chatDiv.scroll(function() {
             if (getOption('AutoLoadMessagesOnScroll')==true) {
@@ -66,8 +113,41 @@ function chatEnhancementsInit() {
                 }
             }
         });
+        if (getOption('AutoResizeEntryBox')==true) {
+            $('#chatbottom').css('height', 'auto');
+            $('#chatprompt').css('display', 'none');
+            $('#chatentryform').css('margin-left', '2px');
+            $('#chatentryform').css('margin-right', '8px');
+            $('#chatentrybox').replaceWith('<textarea id="chatentrybox" placeholder="Your message"/>');
+            $('#chatentrybox').css({
+                'resize': 'none',
+                'width': '100%',
+                'height': defaultChatEntryBoxHeight + 'px',
+                'min-height': defaultChatEntryBoxHeight + 'px'/*,
+                'overflow': 'hidden'*/});
+            padutils.bindEnterAndEscape($('#chatentrybox'), function(evt) {
+                evt.preventDefault();
+                var lineText = $('#chatentrybox').val();
+                if (lineText) {
+                    $('#chatentrybox').val('').focus();
+                    adjustChatEntryBox();
+                    var msg = {
+                        type: 'chat',
+                        userId: pad.getUserId(),
+                        lineText: lineText,
+                        senderName: pad.getUserName(),
+                        authId: pad.getUserId()
+                    };
+                    pad.sendClientMessage(msg);
+                    padchat.receiveChat(msg);
+                    padchat.scrollToBottom();
+                }
+            }, null);
+            $('#chatentrybox').bind('input propertychange', adjustChatEntryBox);
+            setInterval(adjustChatEntryBox, 500);
+            padchat.scrollToBottom();
+        }
     }
-    
 }
 
 chatEnhancements = new chatEnhancementsInit();
