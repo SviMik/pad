@@ -44,31 +44,6 @@ function chatEnhancementsInit() {
         }
     }
 
-    function findQuotationStart(html) {
-        var tagIntervals = [];
-        var tagPattern = /<a [^>]*>[^<]*<\/a>/gi;
-        var tagMatch;
-        while ((tagMatch = tagPattern.exec(html)) !== null) {
-            tagIntervals.push({start: tagMatch.index, end: tagMatch.index+tagMatch[0].length});
-        }
-        var tagPattern = /<[^>]*>/gi;
-        while ((tagMatch = tagPattern.exec(html)) !== null) {
-            tagIntervals.push({start: tagMatch.index, end: tagMatch.index+tagMatch[0].length});
-        }
-        function isPositionInsideTag(pos) {
-            return tagIntervals.some(function (interval) {
-                return pos > interval.start && pos < interval.end;
-            });
-        }
-        var quotationPattern = /&gt;|&#62;|\d\d?:\d\d\s+.*:/ig;
-        while ((quotationMatch = quotationPattern.exec(html)) !== null) {
-            if (!isPositionInsideTag(quotationMatch.index)) {
-                return quotationMatch.index;
-            }
-        }
-        return -1;
-    }
-    
     function adjustChatEntryBox() {
         var chatEntryBox = $('#chatentrybox');
         var chatLines = $('#chatlines');
@@ -94,9 +69,34 @@ function chatEnhancementsInit() {
     
     function chatLineText(args) {
         if (getOption('HighlightQuotations')==true) {
-            var position = findQuotationStart(args.html);
-            if (position>=0) {
-                args.html = args.html.substring(0, position) + '<span style="font-style:italic;color:#196906;">' + args.html.substring(position) + '</span>';
+            try {
+                var tagIntervals = [];
+                var linkPattern = /<a [^>]*>[^<]*<\/a>/gi;
+                var tagMatch;
+                while ((tagMatch = linkPattern.exec(args.html)) !== null) {
+                    tagIntervals.push({start: tagMatch.index, end: tagMatch.index+tagMatch[0].length-4});
+                }
+                var tagPattern = /<[^>]*>/gi;
+                while ((tagMatch = tagPattern.exec(args.html)) !== null) {
+                    tagIntervals.push({start: tagMatch.index, end: tagMatch.index+tagMatch[0].length});
+                }
+                function isPositionInsideTag(pos) {
+                    return tagIntervals.some(function (interval) {
+                        return pos > interval.start && pos < interval.end;
+                    });
+                }
+                var quotationPattern = /((^|<\/a>\]?|:|(#|\u2116|\\|\/|^)[Aa\u0410\u0430]?\d+\s|\[[Aa\u0410\u0430]?\d+\])\s*)((&gt;|&#62;).*)($|[\r\n]|<br\s*\/?>)/ig;
+                args.html = args.html.replace(quotationPattern, function(match, p1, p2, p3, p4, p5, p6, offset) {
+                    if (isPositionInsideTag(offset + p1.length)) {
+                        return match;
+                    }
+                    else {
+                        return p1 + '<span style="font-style:italic;color:#196906;">' + p4 + '</span>' + p6;
+                    }
+                });
+            }
+            catch (e) {
+                (console.error || console.log).call(console, e);
             }
         }
     }
