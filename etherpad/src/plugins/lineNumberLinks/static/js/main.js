@@ -79,7 +79,7 @@ function lineNumberLinksInit() {
         var outerBody = outerFrame.contents().find('body#outerdocbody');
         var innerFrame = outerBody.find('iframe');
         var selection = innerFrame.contents()[0].getSelection();
-        if (selection) {
+        if (selection && selection.focusNode) {
             return $(selection.focusNode).closest('body#innerdocbody>div');
         }
         else {
@@ -133,16 +133,18 @@ function lineNumberLinksInit() {
     function jump(placement) {
         var currentPlacement = getCurrentPlacement();
         var lastPlacement = backAndForthStack.get();
-        if (currentPlacement.lineNumberStr != placement.lineNumberStr && 
+        if (currentPlacement && currentPlacement.lineNumberStr != placement.lineNumberStr && 
                 (!lastPlacement /*&& lineNumberStringToLineIndex(currentPlacement.lineNumberStr) > 0*/ || 
                 lastPlacement && lastPlacement.lineNumberStr != currentPlacement.lineNumberStr)) {
             backAndForthStack.add(currentPlacement);
         }
         goToLine(placement.lineNumberStr, placement.lineCenterTop);
         currentPlacement = getCurrentPlacement();
-        lastPlacement = backAndForthStack.get();
-        if (!lastPlacement || lastPlacement.lineNumberStr != currentPlacement.lineNumberStr) {
-            backAndForthStack.add(currentPlacement);
+        if (currentPlacement) {
+            lastPlacement = backAndForthStack.get();
+            if (!lastPlacement || lastPlacement.lineNumberStr != currentPlacement.lineNumberStr) {
+                backAndForthStack.add(currentPlacement);
+            }
         }
         updateButtons();
     }
@@ -150,7 +152,7 @@ function lineNumberLinksInit() {
     function jumpBackward() {
         var currentPlacement = getCurrentPlacement();
         var lastPlacement = backAndForthStack.get();
-        if (lastPlacement && lastPlacement.lineNumberStr != currentPlacement.lineNumberStr) {
+        if (lastPlacement && currentPlacement && lastPlacement.lineNumberStr != currentPlacement.lineNumberStr) {
             backAndForthStack.add(currentPlacement);
         }
         if (backAndForthStack.canJumpBackward()) {
