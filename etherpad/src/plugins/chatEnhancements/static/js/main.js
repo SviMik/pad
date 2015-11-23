@@ -67,33 +67,56 @@ function chatEnhancementsInit() {
         lastChatEntryBoxWidth = chatEntryBox.width();
     }
     
+    function insertTextAtCaret(elem, text) {
+        if (elem.selectionStart !== undefined) {
+            var selStart = elem.selectionStart;
+            var selEnd = elem.selectionEnd;
+            elem.value = elem.value.substring(0, selStart) + text + elem.value.substring(selEnd, elem.value.length);
+            elem.selectionStart = selStart + text.length;
+            elem.selectionEnd = selStart + text.length;
+        } 
+        else if (document.selection) {
+            elem.focus();
+            document.selection.createRange().text = text;
+        }
+        else {
+            elem.focus();
+            elem.value += text;
+        }
+    }
+    
     function chatLineText(args) {
         if (getOption('HighlightQuotations')==true) {
             try {
-                var tagIntervals = [];
-                var linkPattern = /<a [^>]*>[^<]*<\/a>/gi;
-                var tagMatch;
-                while ((tagMatch = linkPattern.exec(args.html)) !== null) {
-                    tagIntervals.push({start: tagMatch.index, end: tagMatch.index+tagMatch[0].length-4});
-                }
-                var tagPattern = /<[^>]*>/gi;
-                while ((tagMatch = tagPattern.exec(args.html)) !== null) {
-                    tagIntervals.push({start: tagMatch.index, end: tagMatch.index+tagMatch[0].length});
-                }
-                function isPositionInsideTag(pos) {
-                    return tagIntervals.some(function (interval) {
-                        return pos > interval.start && pos < interval.end;
+                lines = args.html.replace(/^\s+|\s+$/g, '').split(/\r*\n|<br\s*\/?>/g);
+                for (var iLine = 0; iLine < lines.length; ++iLine) {
+                    var line = lines[iLine];
+                    var tagIntervals = [];
+                    var linkPattern = /<a [^>]*>[^<]*<\/a>/gi;
+                    var tagMatch;
+                    while ((tagMatch = linkPattern.exec(line)) !== null) {
+                        tagIntervals.push({start: tagMatch.index, end: tagMatch.index+tagMatch[0].length-4});
+                    }
+                    var tagPattern = /<[^>]*>/gi;
+                    while ((tagMatch = tagPattern.exec(line)) !== null) {
+                        tagIntervals.push({start: tagMatch.index, end: tagMatch.index+tagMatch[0].length});
+                    }
+                    function isPositionInsideTag(pos) {
+                        return tagIntervals.some(function (interval) {
+                            return pos > interval.start && pos < interval.end;
+                        });
+                    }
+                    var quotationPattern = /((^|<\/a>\]?\s|:|(^|[#\u2116\\\/])[Aa\u0410\u0430]?\d+\s|\[[Aa\u0410\u0430]?\d+\])\s*)((&gt;|&#62;).*)$/ig;
+                    lines[iLine] = line.replace(quotationPattern, function(match, p1, p2, p3, p4, p5, offset) {
+                        if (isPositionInsideTag(offset + p1.length)) {
+                            return match;
+                        }
+                        else {
+                            return p1 + '<span style="font-style:italic;color:#196906;">' + p4 + '</span>';
+                        }
                     });
                 }
-                var quotationPattern = /((^|<\/a>\]?|:|(#|\u2116|\\|\/|^)[Aa\u0410\u0430]?\d+\s|\[[Aa\u0410\u0430]?\d+\])\s*)((&gt;|&#62;).*)($|[\r\n]|<br\s*\/?>)/ig;
-                args.html = args.html.replace(quotationPattern, function(match, p1, p2, p3, p4, p5, p6, offset) {
-                    if (isPositionInsideTag(offset + p1.length)) {
-                        return match;
-                    }
-                    else {
-                        return p1 + '<span style="font-style:italic;color:#196906;">' + p4 + '</span>' + p6;
-                    }
-                });
+                args.html = lines.join('<br/>');
             }
             catch (e) {
                 (console.error || console.log).call(console, e);
@@ -125,24 +148,35 @@ function chatEnhancementsInit() {
                 'height': defaultChatEntryBoxHeight + 'px',
                 'min-height': defaultChatEntryBoxHeight + 'px'/*,
                 'overflow': 'hidden'*/});
-            padutils.bindEnterAndEscape($('#chatentrybox'), function(evt) {
-                evt.preventDefault();
-                var lineText = $('#chatentrybox').val();
-                if (lineText) {
-                    $('#chatentrybox').val('').focus();
-                    adjustChatEntryBox();
-                    var msg = {
-                        type: 'chat',
-                        userId: pad.getUserId(),
-                        lineText: lineText,
-                        senderName: pad.getUserName(),
-                        authId: pad.getUserId()
-                    };
-                    pad.sendClientMessage(msg);
-                    padchat.receiveChat(msg);
-                    padchat.scrollToBottom();
+            $('#chatentrybox').keypress(function(evt) {
+                if (evt.which == 13) {
+                    evt.preventDefault();
+                    if (!evt.ctrlKey) {
+                        var lineText = $('#chatentrybox').val();
+                        if (lineText) {
+                            $('#chatentrybox').val('').focus();
+                            adjustChatEntryBox();
+                            var msg = {
+                                type: 'chat',
+                                userId: pad.getUserId(),
+                                lineText: lineText,
+                                senderName: pad.getUserName(),
+                                authId: pad.getUserId()
+                            };
+                            pad.sendClientMessage(msg);
+                            padchat.receiveChat(msg);
+                            padchat.scrollToBottom();
+                        }
+                    }
                 }
-            }, null);
+            });
+            $('#chatentrybox').keydown(function(evt) {
+                if (evt.which == 13 && evt.ctrlKey) {
+                    evt.preventDefault();
+                    insertTextAtCaret($('#chatentrybox')[0], '\n');
+                    adjustChatEntryBox();
+                }
+            });
             $('#chatentrybox').bind('input propertychange', adjustChatEntryBox);
             setInterval(adjustChatEntryBox, 500);
             padchat.scrollToBottom();

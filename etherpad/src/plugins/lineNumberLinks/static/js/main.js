@@ -306,15 +306,15 @@ function lineNumberLinksInit() {
 
         var lineNumberPattern;
         if (window.lineRenumerator) {
-            lineNumberPattern = /(#|\u2116|\\|\/|\[|^)([Aa\u0410\u0430]?\d+)/g;
+            lineNumberPattern = /(^|<br\s*\/?>|[#\u2116\n\\\/\[])([Aa\u0410\u0430]?\d+)/g;
         }
         else {
-            lineNumberPattern = /(#|\u2116|\\|\/|\[|^)(\d+)/g;
+            lineNumberPattern = /(^|<br\s*\/?>|[#\u2116\n\\\/\[])(\d+)/g;
         }
         args.html = args.html.replace(lineNumberPattern, function (match, part1, part2, offset) {
             if (!isPositionInsideTag(offset)) {
-                var next_char = offset+match.length==args.html.length ? '' : args.html[offset+match.length];
-                if (part1=='[' && next_char==']' || part1!='[' && (next_char=='' || ',.;!?/\\ +\u2014\u2013\u2026-'.indexOf(next_char) >= 0)) {
+                if (part1=='[' && args.html.charAt(offset+match.length)==']' || part1!='[' && 
+                        args.html.substring(offset+match.length).match(/^(<\/span>)?($|[,.;!?+\/\\\s\r\n\u2014\u2013\u2026-]|: |<br\s*\/?>)/i)) {
                     if ('Aa\u0410\u0430'.indexOf(part2[0]) >= 0) {
                         part2 = 'A'+part2.substring(1);
                     }
