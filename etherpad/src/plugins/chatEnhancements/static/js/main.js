@@ -15,6 +15,8 @@ function chatEnhancementsInit() {
     var defaultChatEntryBoxHeight = 16;
     var lastChatEntryBoxText = '';
     var lastChatEntryBoxWidth = -1;
+    var messageLenghtLimit = 5000;
+    var messageNumLinesLimit = 5;
     
     function getOption(name) {
         if (!options.hasOwnProperty(name)) {
@@ -63,6 +65,16 @@ function chatEnhancementsInit() {
             chatLines.css('bottom', $('#chatbottom').outerHeight() + 'px');
             chatLines.scrollTop(scrollBottom - chatLines.height());
         }
+        if (lastChatEntryBoxText != chatEntryBox.val()) {
+            if (checkMessageRestrictions($.trim(chatEntryBox.val()))) {
+                chatEntryBox.css('outline', '');
+                chatEntryBox.css('border', '');
+            }
+            else {
+                chatEntryBox.css('outline', 'none');
+                chatEntryBox.css('border', '1px solid red');
+            }
+        }
         lastChatEntryBoxText = chatEntryBox.val();
         lastChatEntryBoxWidth = chatEntryBox.width();
     }
@@ -85,6 +97,10 @@ function chatEnhancementsInit() {
         }
     }
     
+    function checkMessageRestrictions(text) {
+        return text.length <= messageLenghtLimit && text.split('\n').length <= messageNumLinesLimit;
+    }
+
     function chatLineText(args) {
         if (getOption('HighlightQuotations')==true) {
             try {
@@ -152,8 +168,8 @@ function chatEnhancementsInit() {
                 if (evt.which == 13) {
                     evt.preventDefault();
                     if (!evt.ctrlKey) {
-                        var lineText = $('#chatentrybox').val();
-                        if (lineText) {
+                        var lineText = $.trim($('#chatentrybox').val());
+                        if (lineText && checkMessageRestrictions(lineText)) {
                             $('#chatentrybox').val('').focus();
                             adjustChatEntryBox();
                             var msg = {
