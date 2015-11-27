@@ -3012,6 +3012,50 @@ function OUTER(gscope) {
     return i;
   }
 
+  function handlePageUpAndPageDown(isPageUp) {
+      function getParentLineNode(node) {
+        if (!node || node == root) {
+          return null;
+        }
+        while (node.parentNode && node.parentNode != root) {
+          node = node.parentNode;
+        }
+        return node.parentNode == root ? node : null;
+      }
+      
+      if (!window.getSelection) {
+        return false;
+      }
+      
+      var browserSelection = window.getSelection();
+      if (browserSelection && browserSelection.type != "None" && browserSelection.rangeCount !== 0 && browserSelection.getRangeAt) {
+        var range = browserSelection.getRangeAt(0);
+        var lineNode = getParentLineNode(range.endContainer);
+        if (lineNode) {
+          var maxDistance = Math.max(30, outerWin.document.documentElement.clientHeight-30);
+          var distance = 0;
+          var siblingDirection = isPageUp ? "previousSibling" : "nextSibling";
+          var newLineNode = lineNode;
+          while(newLineNode[siblingDirection] && newLineNode.offsetHeight + distance < maxDistance) {
+            distance += newLineNode.offsetHeight;
+            newLineNode = newLineNode[siblingDirection];
+          }
+          outerWin.scrollBy(0, newLineNode.offsetTop - lineNode.offsetTop);
+          range = doc.createRange();
+          if (newLineNode.lastChild) {
+            range.setStartAfter(newLineNode.lastChild);
+          } else {
+            range.setStartBefore(newLineNode);
+          }
+          range.collapse(true);
+          browserSelection.removeAllRanges();
+          browserSelection.addRange(range);
+          return true;
+        }
+      }
+    return false;
+  }
+  
   function handleKeyEvent(evt) {
     if (DEBUG && top.DONT_INCORP) return;
 
@@ -3020,12 +3064,21 @@ function OUTER(gscope) {
         return;
     }
 
-    if (! isEditable) return;
-
     var type = evt.type;
     var charCode = evt.charCode;
     var keyCode = evt.keyCode;
     var which = evt.which;
+
+    var stopped = false;
+    
+    if (type == "keydown" && (keyCode == 33 || keyCode == 34)) {
+      if (handlePageUpAndPageDown(keyCode == 33)) {
+        evt.preventDefault();
+        stopped = true;
+      }
+    }
+
+    if (! isEditable) return;
 
     //dmesg("keyevent type: "+type+", which: "+which);
 
@@ -3044,8 +3097,6 @@ function OUTER(gscope) {
     var isTypeForSpecialKey = ((browser.msie || browser.safari) ?
 			       (type == "keydown") : (type == "keypress"));
     var isTypeForCmdKey = ((browser.msie || browser.safari) ? (type == "keydown") : (type == "keypress"));
-
-    var stopped = false;
 
     inCallStackIfNecessary("handleKeyEvent", function() {
 
