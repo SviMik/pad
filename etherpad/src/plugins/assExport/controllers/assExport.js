@@ -95,6 +95,7 @@ function onRequest() {
 	buf+="Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\r\n";
 
 	var missing_style_map = {};
+    var lines_with_missing_styles = [];
 	
 	var lines=padText.replace(/\[[^\]]+\]/g, "").replace(/[ ]{2,}/g, ' ').split("\n");
 	for(var iLine = 0; iLine < lines.length; ++iLine){
@@ -112,6 +113,7 @@ function onRequest() {
                 name = styles[styleKey];
             }else{
 				missing_style_map[name] = true;
+                lines_with_missing_styles.push(str);
 			}
 			var text_en=trim(m[5].replace(/\[[^\[\]]+\]/g, '').replace(/([a-zA-Z][^ ]*) [^a-zA-Z]+$/g, '$1')); // remove symbols from the end of line
 			var text_ru=trim(m[6].replace(/\[[^\[\]]+\]/g, '')).replace(/^\u2192[\s]*/, ""); // remove arrow from the start of line
@@ -138,6 +140,7 @@ function onRequest() {
         }else{
             response.write("Error: Missing styles for "+missing_styles.sort().join(", ")+"\n\nPlease add the styles to the \"assheader\" pad (or fix the names in the \""+argv[2]+"\" pad)");
         }
+        response.write("\n\n\nLines with missing styles:\n\n"+lines_with_missing_styles.join("\n"));
 		return true;
 	}
 
