@@ -167,7 +167,7 @@ function chatEnhancementsInit() {
             $('#chatentrybox').keypress(function(evt) {
                 if (evt.which == 13) {
                     evt.preventDefault();
-                    if (!evt.ctrlKey) {
+                    if (!evt.ctrlKey && !evt.shiftKey) {
                         var lineText = $.trim($('#chatentrybox').val());
                         if (lineText && checkMessageRestrictions(lineText)) {
                             $('#chatentrybox').val('').focus();
@@ -187,7 +187,7 @@ function chatEnhancementsInit() {
                 }
             });
             $('#chatentrybox').keydown(function(evt) {
-                if (evt.which == 13 && evt.ctrlKey) {
+                if (evt.which == 13 && (evt.ctrlKey || evt.shiftKey)) {
                     evt.preventDefault();
                     insertTextAtCaret($('#chatentrybox')[0], '\n');
                     adjustChatEntryBox();
