@@ -67,7 +67,7 @@ function onRequest() {
 
 	/* Get header pad text */
 	var headerText=getPadText("assheader");
-	var styles=new Array();
+	var styles={};
 	if(headerText!=false && headerText!=""){
 		var tmp=headerText.replace(/[ ]{2,}/g, ' ').split("\n");
 		var prev_str="";
@@ -80,7 +80,9 @@ function onRequest() {
 			// Style parser
 			var m=str.match(/^Style:[ ]*([^,]+),(.*)/);
 			if(m!=null && typeof(m[2])!="undefined"){
-				styles[m[1]]=m[2].split("\n");
+                var styleName=m[1];
+                var styleKey=styleName.toLowerCase().replace(/\s+/g, '');
+				styles[styleKey]=styleName;
 			}
 		}
 	}else{
@@ -94,9 +96,9 @@ function onRequest() {
 
 	var missing_style_map = {};
 	
-	var tmp=padText.replace(/\[[^\]]+\]/g, "").replace(/[ ]{2,}/g, ' ').split("\n");
-	for(k in tmp){
-		var str=trim(tmp[k]);
+	var lines=padText.replace(/\[[^\]]+\]/g, "").replace(/[ ]{2,}/g, ' ').split("\n");
+	for(var iLine = 0; iLine < lines.length; ++iLine){
+		var str=trim(lines[iLine]);
 		// build subtitles
 		var m=str.match(/^\[?([0-9]{2}):([0-9]{2}\.[0-9]{1,2}),([0-9\.]+)\]?[ ]*([^:]+):([^\u2192]+)\u2192(.*)/);
 		if(m==null)
@@ -104,8 +106,11 @@ function onRequest() {
 		if(m!=null && typeof(m[5])!="undefined"){
 			var t=parseInt(m[1], 10)*60+parseFloat(m[2]);
 			var l=parseFloat(m[3]);
-			var name=m[4].replace(/\s/, '');
-			if(typeof(styles[name])=="undefined"){
+            var name=m[4];
+            var styleKey=name.toLowerCase().replace(/\s+/g, '');
+			if(typeof(styles[styleKey])!="undefined"){
+                name = styles[styleKey];
+            }else{
 				missing_style_map[name] = true;
 			}
 			var text_en=trim(m[5].replace(/\[[^\[\]]+\]/g, '').replace(/([a-zA-Z][^ ]*) [^a-zA-Z]+$/g, '$1')); // remove symbols from the end of line
@@ -128,7 +133,11 @@ function onRequest() {
 		}
 	}
 	if(missing_styles.length>0){
-		response.write("Error: Missing style for "+missing_styles.sort().join(", ")+"\n\nPlease add style to \"assheader\" pad (or fix name in the \""+argv[2]+"\" pad)");
+        if(missing_styles.length==1) {
+            response.write("Error: Missing style for "+missing_styles.sort().join(", ")+"\n\nPlease add the style to the \"assheader\" pad (or fix the name in the \""+argv[2]+"\" pad)");
+        }else{
+            response.write("Error: Missing styles for "+missing_styles.sort().join(", ")+"\n\nPlease add the styles to the \"assheader\" pad (or fix the names in the \""+argv[2]+"\" pad)");
+        }
 		return true;
 	}
 
