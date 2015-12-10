@@ -21,12 +21,12 @@ function fontSizeTagsInit() {
     function aceCreateDomLine(args) {
         if (args.cls.indexOf('fontSizeTagsBig:') >= 0) {
             cls = args.cls.replace(/(^| )fontSizeTagsBig:(\S+)/g, function(x0, space, padtagsearch) { return ''; });
-            var fontSizeStr = top && top.pad ? fontSizeBig + 'px' : '130%';
+            var fontSizeStr = '131%';
             return [{cls: cls, extraOpenTags: '<big class = "fontSizeTagsBig" style = "font-size: ' + fontSizeStr + ';">', extraCloseTags: '</big>'}];
         }
         else if (args.cls.indexOf('fontSizeTagsSmall:') >= 0) {
             cls = args.cls.replace(/(^| )fontSizeTagsSmall:(\S+)/g, function(x0, space, padtagsearch) { return ''; });
-            var fontSizeStr = top && top.pad ? fontSizeSmall + 'px' : '80%';
+            var fontSizeStr = '85%';
             return [{cls: cls, extraOpenTags: '<small class = "fontSizeTagsSmall" style = "font-size: ' + fontSizeStr + ';">', extraCloseTags: '</small>'}];
         }
     }
