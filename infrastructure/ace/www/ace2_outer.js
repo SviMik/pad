@@ -75,6 +75,7 @@ function Ace2Editor() {
   editor.setNotifyDirty = pendingInit(function (handler) { info.ace_setNotifyDirty(handler); });
 
   editor.setProperty = pendingInit(function(key, value) { info.ace_setProperty(key, value); });
+  editor.getProperty = function(key) { return info.ace_getProperty(key); };
   editor.getDebugProperty = function(prop) { return info.ace_getDebugProperty(prop); };
 
   editor.setBaseText = pendingInit(function(txt) { info.ace_setBaseText(txt); });

@@ -865,6 +865,41 @@ function OUTER(gscope) {
     }
   }
 
+  editorInfo.ace_getProperty = function(key) {
+    var k = key.toLowerCase();
+    if (k == "wraps") {
+      return doesWrap;
+    }
+    else if (k == "showsauthorcolors") {
+      return getClassPresence(root, "authorColors");
+    }
+    else if (k == "showsuserselections") {
+      return getClassPresence(root, "userSelections");
+    }
+    else if (k == "showslinenumbers") {
+      return hasLineNumbers;
+    }
+    else if (k == "grayedout") {
+      return getClassPresence(outerWin.document.body, "grayedout");
+    }
+    else if (k == "dmesg") {
+      return dmesg;
+    }
+    else if (k == 'userauthor') {
+      return thisAuthor;
+    }
+    else if (k == 'styled') {
+      return isStyled;
+    }
+    else if (k == 'textface') {
+      return textFace;
+    }
+    else if (k == 'textsize') {
+      return textSize;
+    }
+    return null;
+  }
+
   editorInfo.ace_setBaseText = function(txt) {
     changesetTracker.setBaseText(txt);
   };
@@ -3993,6 +4028,11 @@ function OUTER(gscope) {
   function setClassPresence(elem, className, present) {
     if (present) addClass(elem, className);
     else removeClass(elem, className);
+  }
+  function getClassPresence(elem, className) {
+    var present = false;
+    getClassArray(elem, function(c) { if (c == className) present = true; });
+    return present;
   }
 
   function setup() {
