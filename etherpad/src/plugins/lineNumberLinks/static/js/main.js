@@ -8,6 +8,7 @@ function lineNumberLinksInit() {
     this.beforeHandleKeyEventInEditor = beforeHandleKeyEventInEditor;
     this.padCollabClientInitialized = padCollabClientInitialized;
     this.onLinkClick = onLinkClick;
+    this.onAnchorLinkClick = onAnchorLinkClick;
     this.jumpBackward = jumpBackward;
     this.jumpForward = jumpForward;
    
@@ -114,6 +115,10 @@ function lineNumberLinksInit() {
         else {
             return lineIndex + 1;
         }
+    }
+    
+    function encodeAnchor(str) {
+        return encodeURIComponent(str).replace(/'/g, '%27');
     }
 
     function getCurrentPlacement() {
@@ -248,7 +253,35 @@ function lineNumberLinksInit() {
         }
         jump({lineNumberStr: lineNumberStr});
     }
-
+    
+    function onAnchorLinkClick(event, encodedAnchor) {
+        if (event && event.preventDefault) {
+            event.preventDefault();
+        }
+        if (event && event.stopPropagation) {
+            event.stopPropagation();
+        }
+        var anchor = decodeURIComponent(encodedAnchor).toLowerCase();
+        var lines =  window.padeditor.ace.exportText().split('\n');
+        var lineIndexWithAnchor = -1;
+        for (var i = 0; i < lines.length; i++) {
+            var line = lines[i].trim().toLowerCase();
+            var indexOfAnchor = line.indexOf(anchor);
+            if (indexOfAnchor >= 0 && line.replace(/\[\[[^\[\]]*\]\]/g, '').indexOf(anchor) >= 0) {
+                if (indexOfAnchor == 0) {
+                    lineIndexWithAnchor = i;
+                    break;
+                }
+                if (lineIndexWithAnchor == -1) {
+                    lineIndexWithAnchor = i;
+                }
+            }
+        }
+        if (lineIndexWithAnchor >= 0) {
+            jump({lineNumberStr: lineIndexToLineNumberString(lineIndexWithAnchor)});
+        }
+    }
+        
     /*function aceInitInnerdocbodyHead(args) {
         args.iframeHTML.push('\'<link rel="stylesheet" type="text/css" href="/static/css/plugins/lineNumberLinks/pad.css"/>\'');
     }*/
@@ -271,19 +304,35 @@ function lineNumberLinksInit() {
 
     function aceCreateDomLine(args) {
         if (args.cls.indexOf('linenumberlink') >= 0) {
-            var lineNumber;
+            var lineNumber = null;
             cls = args.cls.replace(/linenumberlink:([Aa\u0410\u0430]?\d+)/g, function(text, linktext) {
                 lineNumber = linktext;
                 return "linenumberlink";
             });
-            if ('Aa\u0410\u0430'.indexOf(lineNumber[0]) >= 0) {
-                lineNumber = 'A'+lineNumber.substring(1);
+            if (lineNumber != null) {
+                if ('Aa\u0410\u0430'.indexOf(lineNumber[0]) >= 0) {
+                    lineNumber = 'A'+lineNumber.substring(1);
+                }
+                return [{
+                    cls: cls,
+                    extraOpenTags: '<a href="javascript:void(0)" onclick="top.lineNumberLinks.onLinkClick(event, \'' + lineNumber + '\', true);return false;">',
+                    extraCloseTags: '</a>'
+                }];
             }
-            return [{
-                cls: cls,
-                extraOpenTags: '<a href="javascript:void(0)" onclick="top.lineNumberLinks.onLinkClick(event, \'' + lineNumber + '\', true);return false;">',
-                extraCloseTags: '</a>'
-            }];
+        }
+        else if (args.cls.indexOf('lineanchorlink') >= 0) {
+            var encodedAnchor = null;
+            cls = args.cls.replace(/lineanchorlink:([%a-zA-Z0-9\-_.!~*'()]+)/g, function(text, linktext) {
+                encodedAnchor = linktext;
+                return "lineanchorlink";
+            });
+            if (encodedAnchor != null) {
+                return [{
+                    cls: cls,
+                    extraOpenTags: '<a href="javascript:void(0)" onclick="top.lineNumberLinks.onAnchorLinkClick(event, \'' + encodedAnchor + '\', true);return false;">',
+                    extraCloseTags: '</a>'
+                }];
+            }
         }
     }
     
@@ -306,15 +355,19 @@ function lineNumberLinksInit() {
 
         var lineNumberPattern;
         if (window.lineRenumerator) {
-            lineNumberPattern = /(^|<br\s*\/?>|[#\u2116\n\\\/\[])([Aa\u0410\u0430]?\d+)/g;
+            lineNumberPattern = /(^|<br\s*\/?>|[#\u2116\n\\\/\[])([Aa\u0410\u0430]?\d+)|\[\[([^\[\]]+)\]\]/ig;
         }
         else {
-            lineNumberPattern = /(^|<br\s*\/?>|[#\u2116\n\\\/\[])(\d+)/g;
+            lineNumberPattern = /(^|<br\s*\/?>|[#\u2116\n\\\/\[])(\d+)|(\[\[[^\[\]]+\]\])/ig;
         }
-        args.html = args.html.replace(lineNumberPattern, function (match, part1, part2, offset) {
+        args.html = args.html.replace(lineNumberPattern, function (match, part1, part2, part3, offset) {
             if (!isPositionInsideTag(offset)) {
-                if (part1=='[' && args.html.charAt(offset+match.length)==']' || part1!='[' && 
-                        args.html.substring(offset+match.length).match(/^(<\/span>)?($|[,.;!?+\/\\\s\r\n\u2014\u2013\u2026-]|: |<br\s*\/?>)/i)) {
+                if (part3) {
+                    var encodedAnchor = encodeAnchor(part3);
+                    return '[[<a href="javascript:void(0)" onclick="top.lineNumberLinks.onAnchorLinkClick(event, \''+encodedAnchor+'\', true);return false;">'+part3+'</a>]]';
+                }
+                else if (part1=='[' && args.html.charAt(offset+match.length)==']' || 
+                    part1!='[' && args.html.substring(offset+match.length).match(/^(<\/span>)?($|[,.;!?+\/\\\s\r\n\u2014\u2013\u2026-]|: |<br\s*\/?>)/i)) {
                     if ('Aa\u0410\u0430'.indexOf(part2[0]) >= 0) {
                         part2 = 'A'+part2.substring(1);
                     }
@@ -327,7 +380,7 @@ function lineNumberLinksInit() {
     
     function getLineNumberLinkFilter(linestylefilter) {
         return linestylefilter.getTagFilter(function(lineText) {
-            var tagPlacement = {splitPoints: [], tagNames: []};
+            var tagPlacementItems = [];
             var lineNumberPattern;
             if (window.lineRenumerator) {
                 lineNumberPattern = /\[[Aa\u0410\u0430]?\d+\]/g;
@@ -337,8 +390,33 @@ function lineNumberLinksInit() {
             }
             var execResult;
             while ((execResult = lineNumberPattern.exec(lineText))) {
-                tagPlacement.splitPoints.push(execResult.index + 1, execResult.index + execResult[0].length - 1);
-                tagPlacement.tagNames.push('linenumberlink:' + execResult[0].substring(1, execResult[0].length - 1));
+                if (execResult.input.charAt(execResult.index-1) != '[' || execResult.input.charAt(execResult.index + execResult[0].length) != ']') {
+                    tagPlacementItems.push({
+                        start: execResult.index + 1,
+                        end: execResult.index + execResult[0].length - 1,
+                        name: 'linenumberlink:' + execResult[0].substring(1, execResult[0].length - 1)
+                    });
+                }
+            }
+            var lineAnchorPattern = /\[\[[^\[\]]+\]\]/g;
+            while ((execResult = lineAnchorPattern.exec(lineText))) {
+                var tagValue = encodeAnchor(execResult[0].substring(2, execResult[0].length - 2));
+                tagPlacementItems.push({
+                    start: execResult.index + 2,
+                    end: execResult.index + execResult[0].length - 2,
+                    name: 'lineanchorlink:' + tagValue
+                });
+            }
+            tagPlacementItems.sort(function (p1, p2) {
+                return p1.start - p2.start;
+            });
+            var tagPlacement = {splitPoints: [], tagNames: []};
+            for (var i = 0; i < tagPlacementItems.length; ++i) {
+                if (i == 0 || tagPlacementItems[i].start > tagPlacementItems[i-1].end) {
+                    tagPlacement.splitPoints.push(tagPlacementItems[i].start);
+                    tagPlacement.splitPoints.push(tagPlacementItems[i].end);
+                    tagPlacement.tagNames.push(tagPlacementItems[i].name);
+                }
             }
             return tagPlacement;
         });
