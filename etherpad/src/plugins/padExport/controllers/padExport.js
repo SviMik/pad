@@ -137,13 +137,17 @@ function onRequest() {
 			var out="";
 			for(var k=0; k<lines.length; k++){
 				var v=lines[k];
+				v=v.replace("&nbsp;", " ").replace(/[\s]{2,}/g, " ");
 				if(typeof(q["remove_pad_markup"])!="undefined"){
 					v=v.replace(/ class=\"[^\"]*\"/, "");
 					v=v.replace(/<[\/]?span[^>]*>/g, "");
-					v=v.replace("</b><b>", "");
-					v=v.replace("</i><i>", "");
+					v=v.replace(/<\/b>([\s]*)<b>/g, "$1");
+					v=v.replace(/<\/i>([\s]*)<i>/g, "$1");
+					v=v.replace(/(<[iubs]>)[\s]/g, " $1");
+					v=v.replace(/[\s](<\/[iubs]>)/g, "$1 ");
+					v=v.replace(/[\s]{2,}/g, " ");
 				}
-				v=trim(v.replace("&nbsp;", " ").replace(/[\s]{2,}/, " "));
+				v=trim(v);
 				if(from_catched===false){
 					if(v.match(from_regexp)){
 						from_catched=true;
@@ -153,7 +157,7 @@ function onRequest() {
 				if(to_regexp!==false && v.match(to_regexp)){
 					break;
 				}
-				if(typeof(q["keep_empty_lines"])!="undefined" && trim(v)==""){
+				if(typeof(q["keep_empty_lines"])!="undefined" && v==""){
 					out+="<br>\r\n";
 					continue;
 				}
@@ -165,6 +169,8 @@ function onRequest() {
 				}
 				if(remove_regexp!==false){
 					v=v.replace(remove_regexp, "");
+					v=v.replace(/<b>([\s]*)<\/b>/g, "$1");
+					v=v.replace(/<i>([\s]*)<\/i>/g, "$1");
 				}
 				out+="<div>"+trim(v)+"</div>\r\n";
 			}
