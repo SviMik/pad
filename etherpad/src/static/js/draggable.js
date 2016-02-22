@@ -100,8 +100,15 @@ function makeResizableVPane(top, sep, bottom, minTop, minBottom, callback) {
 function makeResizableHPane(left, sep, right, minLeft, minRight, sepWidth, sepOffset, callback) {
   if (minLeft === undefined) minLeft = 0;
   if (minRight === undefined) minRight = 0;
+  if (sepOffset === undefined) sepOffset = 0;
 
-  makeDraggable($(sep), function(eType, evt, state) {
+  var initialState = {};
+  var initialEvent = {pageX: $(sep).offset().left || 0};
+  handleDragEvent('dragstart', initialEvent, initialState);
+  handleDragEvent('dragend', initialEvent, initialState);
+  makeDraggable($(sep), handleDragEvent);
+  
+  function handleDragEvent(eType, evt, state) {
     if (eType == 'dragstart') {
       state.startX = evt.pageX;
       state.leftWidth = $(left).width();
@@ -117,37 +124,21 @@ function makeResizableHPane(left, sep, right, minLeft, minRight, sepWidth, sepOf
       change = leftWidth - state.leftWidth;
 
       var rightWidth = state.rightWidth - change;
-      newSepWidth = sepWidth;
+      var newSepWidth = sepWidth;
       if (newSepWidth == undefined)
         newSepWidth = $(sep).width();
-      newSepOffset = sepOffset;
-      if (newSepOffset == undefined)
-        newSepOffset = 0;
-
-      if (change == 0) {
-	if (rightWidth != minRight || state.lastRightWidth == undefined) {
-	  state.lastRightWidth = rightWidth;
-	  rightWidth = minRight;
-        } else {
-	  rightWidth = state.lastRightWidth;
- 	  state.lastRightWidth = minRight;
-        }
-	change = state.rightWidth - rightWidth;
-	leftWidth = change +  state.leftWidth;
-      }
 
       var totalWidth = leftWidth + newSepWidth + rightWidth;
-      leftWidth = 100.0 * leftWidth / totalWidth;
-      newSepWidth = 100.0 * newSepWidth / totalWidth;
-      newSepOffset = 100.0 * newSepOffset / totalWidth;
-      rightWidth = 100.0 * rightWidth / totalWidth;
+      var position = 100.0 * leftWidth / totalWidth;
 
       $(left).css('right', 'auto');
-      $(left).css('width', leftWidth + "%");
-      $(sep).css('left', (leftWidth + newSepOffset) + "%");
-      $(right).css('left', (leftWidth + newSepWidth) + '%');
+      $(left).css('width', position + '%');
+      $(sep).css('left', position + '%');
+      $(sep).css('margin-left', (sepOffset - 1) + 'px');
+      $(right).css('left', position + '%');
       $(right).css('width', 'auto');
+      $(right).css('margin-left', newSepWidth + 'px');
       if (callback) callback();
     }
-  });
+  }
 }
