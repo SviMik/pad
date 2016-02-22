@@ -6,8 +6,8 @@ function fontSizeTagsInit() {
  this.description = 'fontSizeTags';
  this.client = new main.fontSizeTagsInit();
  this.editBarItemsLeftPad = editBarItemsLeftPad;
- this.aceAttribsToClasses = main.aceAttribsToClasses;
- this.aceCreateDomLine = main.aceCreateDomLine;
+ this.aceAttribsToClasses = this.client.aceAttribsToClasses;
+ this.aceCreateDomLine = this.client.aceCreateDomLine;
  this.install = install;
  this.uninstall = uninstall;
 }
