@@ -4664,6 +4664,7 @@ function OUTER(gscope) {
   }
 
   function updateLineNumbers() {
+    var t1 = new Date().getTime();
     var newNumLines = rep.lines.length();
     if (newNumLines < 1) newNumLines = 1;
     if (newNumLines != lineNumbersShown) {
@@ -4685,7 +4686,11 @@ function OUTER(gscope) {
     if (currentCallStack && currentCallStack.domClean) {
       var a = sideDivInner.firstChild;
       var b = doc.body.firstChild;
+      var ti=0;
       while (a && b) {
+	if(++ti%100==0 && new Date().getTime()-t1 > 200){
+	  break;
+	}
 	var h = (b.clientHeight || b.offsetHeight);
 	if (b.nextSibling) {
 	  // when text is zoomed in mozilla, divs have fractional
