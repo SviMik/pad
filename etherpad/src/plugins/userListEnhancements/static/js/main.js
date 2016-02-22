@@ -2,6 +2,7 @@ function userListEnhancementsInit() {
     this.hooks = ['padEditorInitialized', 'userListData'];
     var activityDelay = 30000;
     var pencilDelay = 5000;
+    var editEventCallbacks = [];
     
     function LineEditingActivities() {
         var authorToLineNumber = {};
@@ -76,6 +77,9 @@ function userListEnhancementsInit() {
                         }
                     }
                     lineEditingActivities.update(author, lineNumber);
+                    for (var iCallback = 0; iCallback < editEventCallbacks.length; iCallback++) {
+                        editEventCallbacks[iCallback](author, lineNumber);
+                    }
                 }
             }
             catch (e) {
@@ -99,6 +103,12 @@ function userListEnhancementsInit() {
         }
         else {
             args.userData.activity = '';
+        }
+    }
+    
+    this.addEventListener = function (name, callback) {
+        if (name == 'useredit') {
+            editEventCallbacks.push(callback);
         }
     }
 }
