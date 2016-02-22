@@ -1,6 +1,7 @@
 function userListEnhancementsInit() {
     this.hooks = ['padEditorInitialized', 'userListData'];
-    var activityDelay = 5000;
+    var activityDelay = 30000;
+    var pencilDelay = 5000;
     
     function LineEditingActivities() {
         var authorToLineNumber = {};
@@ -20,6 +21,9 @@ function userListEnhancementsInit() {
             },
             getLineNumber: function(author) {
                 return authorToLineNumber[author];
+            },
+            getLastUpdateTime: function(author) {
+                return authorToLastUpdate[author];
             }
         };
 
@@ -32,6 +36,9 @@ function userListEnhancementsInit() {
             }
             for (var i = 0; i < authors.length; ++i) {
                 self.update(authors[i], null);
+            }
+            for (author in authorToLastUpdate) {
+                top.paduserlist.userUpdate(author);
             }
         }, 500);
         
@@ -78,14 +85,16 @@ function userListEnhancementsInit() {
     }
     
     this.userListData = function (args) {
-		var canClickOnLink = top && top.lineNumberLinks;
+        var canClickOnLink = top && top.lineNumberLinks;
         var lineNumber = lineEditingActivities ? lineEditingActivities.getLineNumber(args.userData.id) : null;
-        if (lineNumber) {
+        var lastUpdateTime = lineEditingActivities ? lineEditingActivities.getLastUpdateTime(args.userData.id) : null;
+        if (lineNumber && lastUpdateTime) {
+            var showPencil = Date.now() - lastUpdateTime <= pencilDelay;
             args.userData.activity = 
                 '<span style=' + 
                 (canClickOnLink?'cursor:pointer;':'') + '" ' + 
                 (canClickOnLink?'onclick="top.lineNumberLinks.onLinkClick(event, \'' + lineNumber + '\');return false;"':'') + '>' +
-                    '<span style="font-size:15px;">&#9998;</span> ' + lineNumber +
+                    '<span style="font-size:15px;' + (showPencil?'':'visibility:hidden') + '">&#9998;</span> ' + lineNumber +
                 '</span>';
         }
         else {
