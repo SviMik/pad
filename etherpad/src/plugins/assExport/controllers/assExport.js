@@ -97,7 +97,7 @@ function onRequest() {
 	var missing_style_map = {};
 	var lines_with_missing_styles = [];
 	
-	var lines=padText.replace(/\[[^\]]+\]/g, "").replace(/[ ]{2,}/g, ' ').split("\n");
+	var lines=padText.replace(/\{[^\{\}]+\}/g, "").replace(/\[[^\[\]]+\]/g, "").replace(/[ ]{2,}/g, ' ').split("\n");
 	for(var iLine = 0; iLine < lines.length; ++iLine){
 		var str=trim(lines[iLine]);
 		// build subtitles
@@ -115,8 +115,8 @@ function onRequest() {
 				missing_style_map[name] = true;
 				lines_with_missing_styles.push(str);
 			}
-			var text_en=trim(m[5].replace(/\[[^\[\]]+\]/g, '').replace(/([a-zA-Z][^ ]*) [^a-zA-Z]+$/g, '$1')); // remove symbols from the end of line
-			var text_ru=trim(m[6].replace(/\[[^\[\]]+\]/g, '')).replace(/^\u2192[\s]*/, ""); // remove arrow from the start of line
+			var text_en=trim(m[5].replace(/\{[^\{\}]*\}/g, "").replace(/\[[^\[\]]*\]/g, '').replace(/([a-zA-Z][^ ]*) [^a-zA-Z]+$/g, '$1')); // remove symbols from the end of line
+			var text_ru=trim(m[6].replace(/\{[^\{\}]*\}/g, "").replace(/\[[^\[\]]*\]/g, '')).replace(/^\u2192[\s]*/, ""); // remove arrow from the start of line
 			var text=(lang=="en") ? text_en : text_ru;
 			if(name=="Auto" || name=="Multilang"){
 				text=trim(text_en+" "+text_ru);
