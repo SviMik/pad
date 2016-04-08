@@ -17,10 +17,10 @@
 				<option value=5 id=c_error_5>Warnings</option>\
 				<option value=2 id=c_error_2>Info</option>\
 			</select>\
-            <span style="margin-left: 30px"/>\
+		<span style="margin-left: 30px"/>\
 			Download: \
-            <a href="'+location.origin+'/assExport/'+pad.getPadId()+'/en" target="_blank">en</a> / \
-            <a href="'+location.origin+'/assExport/'+pad.getPadId()+'/ru" target="_blank">ru</a> \
+		<a href="'+location.origin+'/assExport/'+pad.getPadId()+'/en" target="_blank">en</a> / \
+		<a href="'+location.origin+'/assExport/'+pad.getPadId()+'/ru" target="_blank">ru</a> \
 		</div>\
 		<div style="float:right">\
 			<a href="javascript:subChecker.check();void(0)">Refresh</a> &nbsp; \
@@ -219,7 +219,7 @@
 				var textWithoutTagsAndComments = text.replace(/\[[^\]]*\]/g, ' ').replace(/\{[^}]*\}/g, ' ').replace(/  +/g, ' ');
 
 				if (name == "Auto") {
-					var textWithHighlightedSymbols = highlightSuspiciousSymbols(textWithoutTagsAndComments, /[^А-Яа-яЁё«»A-Za-z'.,!?:;…"\u21B2\n \/\\\(\)+—–-]+/g);
+					var textWithHighlightedSymbols = highlightSuspiciousSymbols(textWithoutTagsAndComments, /[^А-Яа-яЁё0-9«»A-Za-z'.,!?:;…"\u21B2\n \/\\\(\)+—–-]+/g);
 					if (textWithHighlightedSymbols) {
 						errors.push({level : level_maybe_error, line : line, lang: lang, descr : "Подозрительные символы в субтитрах: " + textWithHighlightedSymbols});
 					}
