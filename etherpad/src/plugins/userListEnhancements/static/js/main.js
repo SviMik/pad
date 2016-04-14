@@ -83,7 +83,9 @@ function userListEnhancementsInit() {
                 }
             }
             catch (e) {
-                console.exception(e);
+                if(typeof(console)!="undefined"){
+                    console.exception(e);
+                }
             }
         }
     }
