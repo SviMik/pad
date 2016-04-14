@@ -1,10 +1,10 @@
-function desktopNotificationsInit() {
+﻿function desktopNotificationsInit() {
     this.hooks = ['padCollabClientInitialized'];
     this.padCollabClientInitialized = padCollabClientInitialized;
     this.version = '0.8';
 
     function padCollabClientInitialized() {
-        if(!window.padchat || !window.$ || !$('#padpage #padmain').length)
+        if(!window.padchat || !window.$ || !$('#padpage #padmain').length || typeof(window.localStorage)=="undefined")
             return;
         var isChrome = navigator.userAgent.toLowerCase().indexOf('chrome')>=0;
         var isOpera = navigator.userAgent.toLowerCase().indexOf('opera')>=0;

@@ -20,7 +20,7 @@ function chatEnhancementsInit() {
     
     function getOption(name) {
         if (!options.hasOwnProperty(name)) {
-            var storageValue = localStorage.getItem('chatEnhancements_' + name);
+            var storageValue = (typeof(window.localStorage)=="undefined") ? null : localStorage.getItem('chatEnhancements_' + name);
             if (storageValue === null) {
                 if (defaultOptions.hasOwnProperty(name)) {
                     options[name] = defaultOptions[name];
@@ -37,6 +37,7 @@ function chatEnhancementsInit() {
     }
 
     function setOption(name, value) {
+        if(typeof(window.localStorage)=="undefined"){return;}
         options[name] = value;
         if (value === null) {
             localStorage.removeItem('chatEnhancements_' + name);
@@ -141,7 +142,7 @@ function chatEnhancementsInit() {
     }
     
     function padCollabClientInitialized() {
-        if ($('#padchat').length == 0) {
+        if ($('#padchat').length == 0 || typeof(window.localStorage)=="undefined") {
             return;
         }
         var chatDiv = $('#chatlines');
