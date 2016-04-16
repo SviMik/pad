@@ -167,6 +167,8 @@
 						text_en = text_both;
 						text_ru = text_both;
 					}
+					line_html=line_html.replace(/<span class="[^"]*pony_timing[^"]*">(.*?)<\/span>/g, ""); // remove timing from html data
+					line_html=line_html.replace(/<span class="[^"]*pony_name[^"]*">(.*?)<\/span>/g, "").trim(); // remove name from html data
 					new_subs.push([parseInt(k), time, duration, name, [text_en, text_ru, line_html]]);
 				}
 			}
