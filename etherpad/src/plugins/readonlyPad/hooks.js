@@ -14,7 +14,7 @@ var readonlyPad_data = [];
 
 function docBarDropdownsPad(arg) {
     helpers.includeCss('plugins/readonlyPad/readonlyPad.css');
-    helpers.includeJs('plugins/readonlyPad/readonlyPad.js');
+    helpers.includeJs('plugins/readonlyPad/main.js');
     
     return arg.template.include('readonlyPadDropdown.ejs', undefined, ['readonlyPad']);
 }
