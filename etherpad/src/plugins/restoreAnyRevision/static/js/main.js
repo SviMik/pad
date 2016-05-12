@@ -5,7 +5,9 @@ function restoreAnyRevisionPluginInit() {
     var linkSpan = null;
 
     if(isBrowser()) {
-        window.addEventListener('load', executeScript, false);
+        try{ // IE8 can't do that
+            window.addEventListener('load', executeScript, false);
+        }catch(e){};
     }
     
     function isBrowser() {
