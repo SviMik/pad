@@ -348,9 +348,11 @@ function lineNumberLinksInit() {
             tagIntervals.push({start: tagMatch.index, end: tagMatch.index+tagMatch[0].length});
         }
         function isPositionInsideTag(pos) {
-            return tagIntervals.some(function (interval) {
-                return pos > interval.start && pos < interval.end;
-            });
+            try{ // IE8 can't do that
+                return tagIntervals.some(function (interval) {
+                    return pos > interval.start && pos < interval.end;
+                });
+            }catch(e){return false;};
         }
 
         var lineNumberPattern;
