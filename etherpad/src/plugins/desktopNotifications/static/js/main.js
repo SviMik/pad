@@ -32,10 +32,12 @@
             window.pad.collabClient.setOnChannelStateChange(handleChannelStateChange);
 
         window.setInterval(pollWindowFocus, 1250);
-        window.addEventListener('focus', onWindowFocus, false);
-        window.addEventListener('blur', onWindowBlur, false);
-        window.addEventListener('DOMActivate', onWindowFocus, false);
-        window.addEventListener('beforeunload', onWindowUnload, false);
+        try{ // IE8 can't do that
+            window.addEventListener('focus', onWindowFocus, false);
+            window.addEventListener('blur', onWindowBlur, false);
+            window.addEventListener('DOMActivate', onWindowFocus, false);
+            window.addEventListener('beforeunload', onWindowUnload, false);
+        }catch(e){};
         $('#sharebutton').before('<div style="text-align: center; padding-top: 7px; display: none;" id="togglenotificationsouter"><a href="javascript:void(0)" id="togglenotifications" style="text-decoration: none; color: #00e">Notifications: disabled</a>&ensp;<a href="javascript:void(0)" id="notificationsoptions"><img style="vertical-align: -2px;" src="'+optionsImageData+'"/></a></div>');
         if(window.Notification || window.webkitNotifications) {        
             $('#sharebutton').css('display', 'none');
