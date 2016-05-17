@@ -338,99 +338,22 @@
 		if(word=="someday"){return 2;} // was 3
 		if(word=="every"){return 2;} // was 3
 		if(word=="maybe"){return 2;} // was 1
+		if(word=="awesome"){return 2;} // was 3
 		// Main processing, found somewhere on the Internet. Works awfully.
-		word = word.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, ''); //word.sub!(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, '')
+		word = word.replace(/(?:[^laeiouyc]es|[^dt]ed|[^laeiouy]e)$/, ''); //word.sub!(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, '')
 		word = word.replace(/^y/, ''); //word.sub!(/^y/, '')
 		var m=word.match(/[aeiouy]{1,2}/g);
 		if(m==null){return 1;}
 		return m.length; //word.scan(/[aeiouy]{1,2}/).size
 	}
 
-	function syllable_count_ru_word(word) {
-		var vowel  = new String ('аеёиоуыэюя'); // Гласные буквы
-		var voiced = new String ('бвгджзлмнрхцчшщ'); // Звонкие и шипящие согласные
-		var deaf   = new String ('кпстф'); // Глухие согласные
-		var brief  = new String ('й'); // Й
-		var other  = new String ('ьъ'); // Другие
-		var cons   = new String ('бвгджзйклмнпрстфхцчшщ'); // Все согласные
-
-		word = word.toLowerCase(); //word.downcase!
-		var s = word.replace(/[^а-яё]/g, '').trim();
-		if(s.length < 1) { return 0; }
-
-		// Есть ли в строке гласные?
-		function isNotLastSep (remainStr) {
-			var is = false;
-			for (var i = 0; i < remainStr.length; i++) {
-				if (vowel.indexOf (remainStr.substr (i, 1)) != -1) { is = true; break; }
-			}
-			return is;
-		}
-
-		// Собственно функция разбиения слова на слоги
-		// Добавляем слог в массив и начинаем новый слог
-		function addSep () {
-			sepArr.push (tmpS);
-			tmpS = '';
-		}
-
-		var tmpL   = new String ();  // Текущий символ
-		var tmpS   = new String ();  // Текущий слог
-		var sepArr = new Array ();   // Массив слогов
-		for (var i = 0; i < s.length; i++) {
-			tmpL = s.substr (i, 1);
-			tmpS += tmpL;
-			// Проверка на признаки конца слогов
-			// если буква равна 'й' и она не первая и не последняя и это не последний слог
-			if (
-			  (i != 0) && 
-			  (i != s.length -1) && 
-			  (brief.indexOf (tmpL) != -1) &&
-			  (isNotLastSep (s.substr (i+1, s.length-i+1)))
-			) { addSep (); continue; }
-			// если текущая гласная и следующая тоже гласная
-			if (
-				(i < s.length - 1) && 
-				(vowel.indexOf (tmpL) != -1) && 
-				(vowel.indexOf (s.substr (i+1, 1)) != -1)
-			 ) { addSep (); continue; }
-			// если текущая гласная, следующая согласная, а после неё гласная
-			if (
-				(i < s.length - 2) && 
-				(vowel.indexOf (tmpL) != -1) && 
-				(cons.indexOf (s.substr (i+1, 1)) != -1) && 
-				(vowel.indexOf (s.substr (i+2, 1)) != -1)
-			 ) { addSep (); continue; }
-			// если текущая гласная, следующая глухая согласная, а после согласная и это не последний слог
-			if (
-				(i < s.length - 2) && 
-				(vowel.indexOf (tmpL) != -1) && 
-				(deaf.indexOf (s.substr (i+1, 1)) != -1) && 
-				(cons.indexOf (s.substr (i+2, 1)) != -1) &&
-				(isNotLastSep (s.substr (i+1, s.length-i+1)))
-			) { addSep (); continue; }
-			// если текущая звонкая или шипящая согласная, перед ней гласная, следующая не гласная и не другая, и это не последний слог
-			if (
-				(i > 0) && 
-				(i < s.length - 1) && 
-				(voiced.indexOf (tmpL) != -1) && 
-				(vowel.indexOf (s.substr (i-1, 1)) != -1) && 
-				(vowel.indexOf (s.substr (i+1, 1)) == -1) && 
-				(other.indexOf (s.substr (i+1, 1)) == -1) && 
-				(isNotLastSep (s.substr (i+1, s.length-i+1)))
-			) { addSep (); continue; }  
-			// если текущая другая, а следующая не гласная если это первый слог
-			if (
-				(i < s.length - 1) && 
-				(other.indexOf (tmpL) != -1) &&
-				((vowel.indexOf (s.substr (i+1, 1)) == -1) || 
-				(isNotLastSep (s.substr (0, i))))
-			) { addSep (); continue; } 
-		}
-		if(isNotLastSep(tmpS)){
-			sepArr.push (tmpS);
-		}
-		return sepArr.length;
+	function syllable_count_ru_word(str) {
+		str = str.toLowerCase(); //word.downcase!
+		str = str.replace(/[^а-яё]/g, '').trim();
+		if(str.length < 1) { return 0; }
+		var m=str.match(/[аеёиоуыэюя]/g);
+		if(m==null){return 0;}
+		return m.length;
 	}
 
 	this.syllable_count = function(str){
