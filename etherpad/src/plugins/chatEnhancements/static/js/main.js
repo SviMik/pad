@@ -153,6 +153,19 @@ function chatEnhancementsInit() {
                 }
             }
         });
+        if (!getOption('AutoLoadMessagesOnScroll')) {
+            $('#chatloadmore').css('display', 'inline-block');
+            var autoLoadDiv = $('<div id = "autoloadmessagesdiv">&emsp;(<a id = "autoloadmessages" href="javascript:void(0)">enable auto-load</a>)</div>');
+            autoLoadDiv.css('display', 'inline-block').insertAfter($('#chatloadmore'));
+            $('#autoloadmessages').click(function() {
+                setOption('AutoLoadMessagesOnScroll', true);
+                $('#autoloadmessagesdiv').css('display', 'none');
+                if(chatDiv.scrollTop() < 25) {
+                    padchat.loadMoreHistory();
+                }
+            });
+            $('#autoloadmessages').css({'text-decoration': 'none'});
+        }
         if (getOption('AutoResizeEntryBox')==true) {
             $('#chatbottom').css('height', 'auto');
             $('#chatprompt').css('display', 'none');
