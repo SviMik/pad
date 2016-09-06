@@ -146,6 +146,16 @@ function accessPadGlobal(padId, padFunc, rwMode) {
         revmeta.setJSONEntry(newRev, thisRevMeta);
 
         updateCoarseChangesets(true);
+
+        var modelCache = _getModelCache();
+        var cacheKey = "recent_atext/C/"+newRev+"/"+padId;
+        modelCache.put(cacheKey, Changeset.cloneAText(newAText));
+        if (newRev > 5) {
+          var cacheKeyOld = "recent_atext/C/"+(newRev-5)+"/"+padId;
+          if (modelCache.containsKey(cacheKeyOld)) {
+            modelCache.remove(cacheKeyOld);
+          }
+        }
       }
       function getNumForAuthor(author, dontAddIfAbsent) {
         return pad.pool().putAttrib(['author',author||''], dontAddIfAbsent);
@@ -322,6 +332,12 @@ function accessPadGlobal(padId, padFunc, rwMode) {
             return Changeset.cloneAText(cachedValue);
           }
           //java.lang.System.out.println("MISS! "+cacheKey);
+
+          var cacheKeyRecent = "recent_atext/C/"+r+"/"+padId;
+          cachedValue = modelCache.get(cacheKeyRecent);
+          if (cachedValue) {
+            return Changeset.cloneAText(cachedValue);
+          }
 
 	  var revs = _getPadStringArray(padId, "revs");
 	  var keyRev = pad.getKeyRevisionNumber(r);
@@ -692,6 +708,13 @@ function getPadInternalRevisionAText(padId, r) {
     if (cachedValue) {
       modelCache.touch(cacheKey);
       resultFromCache = Changeset.cloneAText(cachedValue);
+    }
+    else {
+      var cacheKeyRecent = "recent_atext/C/"+r+"/"+padId;
+      cachedValue = modelCache.get(cacheKeyRecent);
+      if (cachedValue) {
+        resultFromCache = Changeset.cloneAText(cachedValue);
+      }
     }
   }, 'r');
   if (resultFromCache) {

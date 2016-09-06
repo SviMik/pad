@@ -25,12 +25,14 @@ import("etherpad.pad.padusers");
 import("etherpad.pad.padevents");
 import("etherpad.pad.pad_security");
 import("etherpad.pro.pro_padmeta");
+import("etherpad.pro.pro_accounts");
 import("fastJSON");
 import("fileutils.readFile");
 import("jsutils.{eachProperty,keys}");
 import("etherpad.collab.collabroom_server.*");
 import("etherpad.collab.readonly_server");
 import("etherpad.admin.plugins");
+import("etherpad.control.pad.pad_changeset_control");
 jimport("java.util.concurrent.ConcurrentHashMap");
 
 var PADPAGE_ROOMTYPE = "padpage";
@@ -121,10 +123,37 @@ function _getPadRevisionSockets(pad) {
   return revisionSockets;
 }
 
+function _changesetContainsWhiteText(cs, apool) {
+  var changesetAPool = new AttribPool().fromJsonable(apool);
+  var whiteAttribNum = changesetAPool.putAttrib(['author', ''], true);
+
+  function isOpWhite(op) {
+    var isWhite = false;
+    var isColored = false;
+    Changeset.eachAttribNumber(op.attribs, function(num) {
+      var attrib = changesetAPool.getAttrib(num);
+      isWhite = isWhite || num == whiteAttribNum;
+      isColored = isColored || attrib[0] == 'author' && attrib[1] != '';
+    });
+    return op.opcode == '+' && !isColored && op.chars > op.lines || op.opcode == '=' && isWhite;
+  }
+
+  var unpackedChangeset = Changeset.unpack(cs);
+  var csIter = Changeset.opIterator(unpackedChangeset.ops);
+  while (csIter.hasNext()) {
+    if (isOpWhite(csIter.next())) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function applyUserChanges(pad, baseRev, changeset, optSocketId, optAuthor) {
   // changeset must be already adapted to the server's apool
+  log.custom('performance', 'applyUserChanges/Start');
   var pluginAccess = plugins.callHook("isWritingToPadAllowed", {pad: pad.getId()}).every(Boolean);
   if (!pluginAccess) {
+    log.custom('performance', 'applyUserChanges/Finish-1');
     return;
   }
 
@@ -163,6 +192,21 @@ function applyUserChanges(pad, baseRev, changeset, optSocketId, optAuthor) {
     _getPadRevisionSockets(pad)[newRev] = optSocketId;
   }
 
+  var opts = pad.getPadOptionsObj();
+  if (opts.view && opts.view.lockWhiteTextForGuests && !pro_accounts.isAccountSignedIn()) {
+    log.custom('performance', 'applyUserChanges/lockWhiteTextForGuests/Start');
+    var changesetInfo = pad_changeset_control.getChangesetInfo(padutils.getLocalPadId(pad), newRev, newRev+1, 1);
+    log.custom('performance', 'applyUserChanges/lockWhiteTextForGuests/AfterGetChangesetInfo');
+    var changedWhiteText = _changesetContainsWhiteText(changesetInfo.forwardsChangesets[0], changesetInfo.apool) || _changesetContainsWhiteText(changesetInfo.backwardsChangesets[0], changesetInfo.apool);
+    log.custom('performance', 'applyUserChanges/lockWhiteTextForGuests/AfterLookingForWhiteText');
+    if (changedWhiteText) {
+      var backwardsChangeset = pad.adoptChangesetAttribs(changesetInfo.backwardsChangesets[0], new AttribPool().fromJsonable(changesetInfo.apool));
+      pad.appendRevision(backwardsChangeset);
+      log.custom('performance', 'applyUserChanges/lockWhiteTextForGuests/AfterApplyingBackwardsChangeset');
+    }
+    log.custom('performance', 'applyUserChanges/lockWhiteTextForGuests/Finish');
+  }
+  
   var correctionChangeset = _correctMarkersInPad(pad.atext(), pad.pool());
   if (correctionChangeset) {
     pad.appendRevision(correctionChangeset);
@@ -179,6 +223,7 @@ function applyUserChanges(pad, baseRev, changeset, optSocketId, optAuthor) {
 
   activepads.touch(pad.getId());
   padevents.onEditPad(pad, thisAuthor);
+  log.custom('performance', 'applyUserChanges/Finish');
 }
 
 function updateClient(pad, connectionId) {
