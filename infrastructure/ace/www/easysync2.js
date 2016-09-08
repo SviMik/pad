@@ -1937,7 +1937,6 @@ Changeset.follow = function(cs1, cs2, reverseInsertOrder, pool) {
       op2.opcode = '';
     }
     else if (! op2.opcode) {
-      Changeset.copyOp(op1, opOut);
       op1.opcode = '';
     }
     else {
