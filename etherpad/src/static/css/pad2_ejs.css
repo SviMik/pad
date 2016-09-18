@@ -517,7 +517,7 @@ table#otheruserstable { display: none; }
 }
 
 .usertdswatch { width: 1%; }
-.usertdname { font-size: 1.3em; color: #444; width: 100% }
+.usertdname { font-size: 1.3em; color: #444; width: 100%; word-break: break-all; }
 .usertdstatus { font-size: 1.1em; font-style: italic; color: #999; }
 #otheruserstable td.usertdactivity { font-size: 1.2em; color: #777; white-space: nowrap; padding-right: 5px; padding-left: 5px; }
 
