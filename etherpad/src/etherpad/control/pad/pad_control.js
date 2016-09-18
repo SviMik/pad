@@ -99,7 +99,7 @@ function getDefaultPadText() {
   if (appjet.config.defaultPadContent !== undefined)
     return {padId: appjet.config.defaultPadContent};
   if (pro_utils.isProDomainRequest()) {
-    return pro_config.getConfig().defaultPadText;
+    return pro_config.getConfig().defaultPadText.replace(/\r/g, '');
   }
   return renderTemplateAsString("misc/pad_default.ejs", {padUrl: request.url.split("?", 1)[0]});
 }
