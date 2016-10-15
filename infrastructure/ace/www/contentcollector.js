@@ -68,7 +68,7 @@ function makeContentCollector(collectStyles, browser, apool, domInterface,
   }
   function textify(str) {
     return sanitizeUnicode(
-      str.replace(/ +\r?\n/g, ' ').replace(/[\n\r ]/g, ' ').replace(/\xa0/g, ' ').replace(/\t/g, '        '));
+      str.replace(/ +\r?\n/g, ' ').replace(/(^|\r?\n)[ \xa0]/g, ' ').replace(/[\n\r ]/g, ' ').replace(/\xa0/g, ' ').replace(/\t/g, '        '));
   }
   function getAssoc(node, name) {
     return dom.nodeProp(node, "_magicdom_"+name);
